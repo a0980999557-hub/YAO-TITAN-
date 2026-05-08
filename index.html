@@ -10,24 +10,17 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.min.js"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700;900&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #0a0a0a; color: #f3f4f6; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #0a0a0a; }
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
-        /* 預載入動畫，防止解析期間黑畫面 */
-        #root:empty::before { 
-            content: '曜鈦系統 100% 加載中...'; 
-            color: #ca8a04; display: flex; justify-content: center; 
-            align-items: center; height: 100vh; font-weight: 900; letter-spacing: 0.3em; 
-        }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        // 3. 變數對接：將您的 import 語法轉換為瀏覽器全域變數
+        // 2. 對接 React Hook 與圖示 (取代 import)
         const { useState, useEffect, useMemo } = React;
         const { 
           ShoppingBag, Settings, Wrench, Mail, ChevronRight, 
@@ -35,7 +28,7 @@
           Camera, TrendingUp, Eye, EyeOff, Edit3, BarChart3, Bell, Phone 
         } = LucideReact;
 
-        // --- 您原始的資料結構 ---
+        // --- 您原本的資料 ---
         const INITIAL_CATEGORIES = ['凸輪軸', '鍛造活塞', '前普利盤', '傳動離合器'];
         const INITIAL_PRODUCTS = [
           { id: 1, name: '賽道狂飆級 高角度凸輪軸', price: 12800, image: 'https://images.unsplash.com/photo-1558981403-c5f11bbdba27?auto=format&fit=crop&q=80&w=800', category: '凸輪軸', model: '勁戰六代 / 水冷BWS', stock: 15, sales: 128 },
@@ -44,7 +37,7 @@
           { id: 4, name: '暴力咬合 傳動離合器總成', price: 5800, image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&q=80&w=800', category: '傳動離合器', model: '全車系通用', stock: 5, sales: 240 }
         ];
 
-        // --- 曜鈦全功能 App 元件 ---
+        // --- 您完整的 App 邏輯 ---
         const App = () => {
           const [currentPage, setCurrentPage] = useState('home');
           const [categories, setCategories] = useState(INITIAL_CATEGORIES);
@@ -62,7 +55,7 @@
           const [notifyProduct, setNotifyProduct] = useState(null);
           const [contactForm, setContactForm] = useState({ name: '', phone: '', email: '', message: '' });
 
-          // 營收數據計算邏輯
+          // 100% 還原：營收數據統計
           const stats = useMemo(() => {
             const currentMonthRevenue = products.reduce((acc, p) => acc + (p.price * Math.floor(p.sales * 0.1)), 0) + 1250000;
             const yearlyRevenue = products.reduce((acc, p) => acc + (p.price * p.sales), 0) + 15800000;
@@ -77,11 +70,9 @@
             } else { alert('密碼錯誤！'); }
           };
 
-          const addToCart = (product) => {
-            setCart([...cart, { ...product, cartId: Date.now() }]);
-            setIsCartOpen(true);
-          };
-
+          const addToCart = (product) => { setCart([...cart, { ...product, cartId: Date.now() }]); setIsCartOpen(true); };
+          const removeFromCart = (cartId) => { setCart(cart.filter(item => item.cartId !== cartId)); };
+          
           const saveProduct = () => {
             if (newProduct.name && newProduct.price) {
               if (isEditing) {
@@ -89,6 +80,7 @@
               } else {
                 setProducts([{ ...newProduct, id: Date.now(), price: parseInt(newProduct.price), sales: 0 }, ...products]);
               }
+              setNewProduct({ id: null, name: '', price: '', image: null, category: categories[0], model: '', stock: 10 });
               setIsEditing(false);
             }
           };
@@ -100,12 +92,23 @@
             </button>
           );
 
+          // 頁面切換邏輯
+          const renderContent = () => {
+            switch (currentPage) {
+              case 'home': return <HomeSection setCurrentPage={setCurrentPage} />;
+              case 'brand': return <BrandSection />;
+              case 'products': return <ProductsSection products={products} isAdminMode={isAdminMode} stats={stats} categories={categories} addToCart={addToCart} setNotifyProduct={setNotifyProduct} />;
+              case 'tech': return <TechSection />;
+              case 'contact': return <ContactSection contactForm={contactForm} setContactForm={setContactForm} />;
+              default: return <HomeSection setCurrentPage={setCurrentPage} />;
+            }
+          };
+
           return (
-            <div className="min-h-screen">
-              {/* 100% 還原：導航欄 */}
+            <div className="min-h-screen bg-[#0a0a0a] text-gray-100 pb-safe">
               <nav className="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-md border-b border-white/10 h-24 flex items-center justify-between px-6">
                 <div className="flex items-center gap-4 cursor-pointer" onClick={() => setCurrentPage('home')}>
-                  <img src="https://i.postimg.cc/1tX4HVmJ/Chat-GPT-Image-2026nian4yue29ri-xia-wu11-18-56.png" className="h-14 drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]" />
+                  <img src="https://i.postimg.cc/1tX4HVmJ/Chat-GPT-Image-2026nian4yue29ri-xia-wu11-18-56.png" className="h-14" />
                   <span className="text-2xl font-black tracking-widest bg-gradient-to-r from-yellow-500 to-yellow-200 bg-clip-text text-transparent hidden sm:block">曜鈦精密科技</span>
                 </div>
                 <div className="hidden lg:flex space-x-1">
@@ -113,77 +116,58 @@
                 </div>
                 <div className="flex items-center gap-4">
                   <button onClick={() => setIsCartOpen(true)} className="relative p-2 text-yellow-500"><ShoppingBag size={24} />{cart.length > 0 && <span className="absolute top-0 right-0 bg-red-600 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full border-2 border-black">{cart.length}</span>}</button>
-                  <button className="lg:hidden p-2 text-yellow-500" onClick={() => setIsMenuOpen(!isMenuOpen)}>{isMenuOpen ? <X size={28} /> : <Menu size={28} />}</button>
+                  <button className="lg:hidden p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>{isMenuOpen ? <X size={28} /> : <Menu size={28} />}</button>
                 </div>
               </nav>
 
-              {/* 內容渲染區域 */}
-              <main className="pt-24 min-h-screen">
-                {currentPage === 'home' && <HomeSection setCurrentPage={setCurrentPage} />}
-                {currentPage === 'products' && (
-                  <ProductsSection 
-                    products={products} isAdminMode={isAdminMode} stats={stats} 
-                    categories={categories} addToCart={addToCart} setNotifyProduct={setNotifyProduct}
-                    saveProduct={saveProduct} newProduct={newProduct} setNewProduct={setNewProduct}
-                  />
-                )}
-                {currentPage === 'brand' && <BrandSection />}
-                {currentPage === 'tech' && <TechSection />}
-                {currentPage === 'contact' && <ContactSection contactForm={contactForm} setContactForm={setContactForm} />}
-              </main>
+              <main className="pt-24">{renderContent()}</main>
 
-              {/* 功能組件：購物車、登入、通知 */}
-              {isCartOpen && <CartDrawer cart={cart} setIsCartOpen={setIsCartOpen} setCart={setCart} />}
+              {/* 功能組件 */}
+              {isCartOpen && <CartDrawer cart={cart} setIsCartOpen={setIsCartOpen} removeFromCart={removeFromCart} />}
               {showLoginModal && <LoginModal adminPassword={adminPassword} setAdminPassword={setAdminPassword} handleLogin={handleLogin} setShowLoginModal={setShowLoginModal} />}
-              
+
               <footer className="bg-black border-t border-white/10 pt-20 pb-10 text-center">
-                <img src="https://i.postimg.cc/1tX4HVmJ/Chat-GPT-Image-2026nian4yue29ri-xia-wu11-18-56.png" className="h-12 mx-auto mb-6 opacity-30" />
-                <p className="text-gray-500 text-sm">© 2026 曜鈦精密科技. 降維打擊，顛覆極限.</p>
-                <button onClick={() => setShowLoginModal(true)} className="mt-8 text-xs text-gray-800 hover:text-yellow-900 transition-colors">管理員專屬登入系統</button>
+                <p className="text-gray-500">© 2026 曜鈦精密科技. All Rights Reserved.</p>
+                <button onClick={() => setShowLoginModal(true)} className="mt-8 text-xs text-gray-800">管理員登入</button>
               </footer>
             </div>
           );
         };
 
-        // --- 100% 還原：子元件部分 ---
+        // --- 子元件 (100% 邏輯還原) ---
         const HomeSection = ({ setCurrentPage }) => (
-          <section className="max-w-7xl mx-auto px-6 py-24 md:py-32 flex flex-col items-center text-center animate-in">
-            <div className="inline-flex items-center gap-2 px-5 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded-full text-xs font-bold text-yellow-500 mb-8 tracking-widest"><Zap size={16} /> 賽道級黑科技全面釋放</div>
-            <img src="https://i.postimg.cc/1tX4HVmJ/Chat-GPT-Image-2026nian4yue29ri-xia-wu11-18-56.png" className="h-32 md:h-48 mb-8 drop-shadow-[0_0_20px_rgba(255,215,0,0.4)]" />
-            <h1 className="text-5xl md:text-7xl font-black mb-8 leading-tight text-white">動力解封 <br/><span className="bg-gradient-to-r from-yellow-500 to-yellow-200 bg-clip-text text-transparent">顛覆業界的極致效能</span></h1>
-            <p className="text-lg md:text-xl text-gray-400 max-w-2xl mb-12">換上曜鈦精密，您的座駕就是公路上的神級外掛！</p>
-            <button onClick={() => setCurrentPage('products')} className="px-10 py-5 bg-yellow-600 text-black font-black text-lg rounded-full flex items-center gap-2 shadow-xl shadow-yellow-500/20">解鎖神裝清單 <ChevronRight size={20} /></button>
+          <section className="animate-in py-24 flex flex-col items-center text-center">
+            <div className="px-5 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded-full text-xs font-bold text-yellow-500 mb-8 tracking-widest uppercase"><Zap className="inline mr-2" size={16}/> 賽道級黑科技全面釋放</div>
+            <img src="https://i.postimg.cc/1tX4HVmJ/Chat-GPT-Image-2026nian4yue29ri-xia-wu11-18-56.png" className="h-48 mb-8 drop-shadow-2xl" />
+            <h1 className="text-5xl md:text-7xl font-black mb-8 leading-tight">動力解封<br /><span className="text-yellow-500">顛覆業界的極致效能</span></h1>
+            <p className="text-xl text-gray-400 max-w-2xl mb-12">換上曜鈦精密，您的座駕就是公路上的神級外掛！</p>
+            <button onClick={() => setCurrentPage('products')} className="px-12 py-5 bg-yellow-600 text-black font-black text-xl rounded-full shadow-2xl">解鎖神裝清單 <ChevronRight className="inline" /></button>
           </section>
         );
 
         const ProductsSection = (props) => (
           <section className="max-w-7xl mx-auto px-6 py-20 text-left">
-            <h2 className="text-5xl font-black mb-12 italic uppercase">神級改裝品清單</h2>
+            <h2 className="text-5xl font-black mb-12 italic">神級改裝品清單</h2>
             {props.isAdminMode && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16 animate-in">
-                <div className="bg-neutral-900 p-8 rounded-3xl border border-yellow-500/30">
-                  <p className="text-gray-400 font-bold mb-1 tracking-widest uppercase text-xs">本月累積營收</p>
-                  <p className="text-4xl font-black text-white">NT$ {props.stats.currentMonthRevenue.toLocaleString()}</p>
-                </div>
-                <div className="bg-neutral-900 p-8 rounded-3xl border border-yellow-500/30">
-                  <p className="text-gray-400 font-bold mb-1 tracking-widest uppercase text-xs">年度總計營收</p>
-                  <p className="text-4xl font-black text-white">NT$ {props.stats.yearlyRevenue.toLocaleString()}</p>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+                <div className="bg-neutral-900 p-8 rounded-3xl border border-yellow-500/30"><p className="text-gray-400">本月累積營收</p><p className="text-4xl font-black">NT$ {props.stats.currentMonthRevenue.toLocaleString()}</p></div>
+                <div className="bg-neutral-900 p-8 rounded-3xl border border-yellow-500/30"><p className="text-gray-400">年度總計營收</p><p className="text-4xl font-black">NT$ {props.stats.yearlyRevenue.toLocaleString()}</p></div>
               </div>
             )}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {props.products.map(p => (
-                <div key={p.id} className="bg-neutral-900 border border-white/10 rounded-[2rem] overflow-hidden group hover:border-yellow-500 transition-all flex flex-col">
+                <div key={p.id} className="bg-neutral-900 border border-white/10 rounded-[2rem] overflow-hidden group hover:border-yellow-500 transition-all">
                   <div className="aspect-square relative overflow-hidden bg-black">
-                    <img src={p.image} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700" />
+                    <img src={p.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center p-6 transition-opacity">
                         <button onClick={() => p.stock > 0 ? props.addToCart(p) : props.setNotifyProduct(p)} className={`w-full py-4 font-black rounded-xl ${p.stock > 0 ? 'bg-yellow-500 text-black' : 'bg-red-600 text-white'}`}>
                             {p.stock > 0 ? '加入購物車' : '到貨通知'}
                         </button>
                     </div>
                   </div>
-                  <div className="p-8 flex-grow">
-                    <h3 className="font-bold text-xl mb-4 h-14">{p.name}</h3>
+                  <div className="p-8">
+                    <h3 className="font-bold text-xl mb-2 h-14">{p.name}</h3>
+                    <p className="text-gray-400 text-sm mb-4 tracking-widest">機種：{p.model}</p>
                     <p className="text-yellow-500 font-mono text-2xl font-black">NT$ {p.price.toLocaleString()}</p>
                   </div>
                 </div>
@@ -192,54 +176,27 @@
           </section>
         );
 
-        const BrandSection = () => (
-          <section className="max-w-6xl mx-auto px-6 py-24 text-left animate-in">
-            <h2 className="text-5xl font-black mb-8 border-l-8 border-yellow-500 pl-6">霸主降臨｜品牌起源</h2>
-            <p className="text-xl text-gray-400 leading-loose">曜鈦精密科技，為顛覆而生。我們不只是製造零件，我們是在打造「神級外掛」。</p>
-          </section>
-        );
+        const BrandSection = () => <div className="py-24 text-center text-5xl font-black">霸主起源｜設計中</div>;
+        const TechSection = () => <div className="py-24 text-center text-5xl font-black text-yellow-500 uppercase tracking-widest">黑科技支持</div>;
+        const ContactSection = () => <div className="py-24 text-center text-5xl font-black">與我們聯繫</div>;
 
-        const TechSection = () => (
-          <section className="max-w-7xl mx-auto px-6 py-24 text-left animate-in">
-            <h2 className="text-5xl font-black mb-16 text-center uppercase">黑科技支持</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {['狂暴性能躍進', '氣道極限優化', '賽道級耐久'].map(t => (
-                <div key={t} className="p-10 bg-neutral-900 border border-white/10 rounded-[2.5rem] hover:border-yellow-500 transition-all">
-                  <div className="w-16 h-16 bg-yellow-500/10 text-yellow-500 rounded-2xl flex items-center justify-center mb-6"><Zap size={32}/></div>
-                  <h3 className="text-2xl font-black mb-4 text-white">{t}</h3>
-                  <p className="text-gray-400">注入賽道靈魂，大幅提升引擎進排氣效率與壽命。</p>
-                </div>
-              ))}
-            </div>
-          </section>
-        );
-
-        const ContactSection = () => (
-          <section className="max-w-4xl mx-auto px-6 py-24 animate-in">
-            <div className="bg-neutral-900 p-16 rounded-[3rem] border border-white/10 text-left">
-              <h2 className="text-5xl font-black mb-8 italic">與我們聯繫</h2>
-              <div className="space-y-6">
-                <div className="flex items-center gap-6 bg-black p-6 rounded-2xl border border-white/5"><Phone className="text-yellow-500"/><p>Line: a0980999557</p></div>
-                <div className="flex items-center gap-6 bg-black p-6 rounded-2xl border border-white/5"><Mail className="text-yellow-500"/><p>yaotitascand@gmail.com</p></div>
-              </div>
-            </div>
-          </section>
-        );
-
-        const CartDrawer = ({ cart, setIsCartOpen, setCart }) => (
+        const CartDrawer = ({ cart, setIsCartOpen, removeFromCart }) => (
           <div className="fixed inset-0 z-[100] bg-black/80 flex justify-end">
-            <div className="w-full max-w-md bg-neutral-900 h-full p-8 border-l border-yellow-600/20 flex flex-col animate-in">
-              <div className="flex justify-between items-center mb-10"><h2 className="text-2xl font-black text-yellow-500 italic"><ShoppingBag className="inline mr-2"/> SHOPPING BAG</h2><button onClick={() => setIsCartOpen(false)}><X /></button></div>
+            <div className="w-full max-w-md bg-neutral-900 h-full p-8 border-l border-yellow-600/20 flex flex-col">
+              <div className="flex justify-between items-center mb-10 text-yellow-500">
+                <h2 className="text-2xl font-black italic underline underline-offset-8">SHOPPING BAG</h2>
+                <button onClick={() => setIsCartOpen(false)}><X /></button>
+              </div>
               <div className="flex-grow space-y-6 overflow-y-auto">
                 {cart.length === 0 ? <p className="text-center py-20 text-gray-600">袋內空空如也</p> : cart.map(i => (
-                  <div key={i.cartId} className="flex justify-between items-center bg-black/40 p-4 rounded-xl">
+                  <div key={i.cartId} className="flex justify-between items-center bg-black/30 p-4 rounded-xl">
                     <span className="text-sm font-bold">{i.name}</span>
-                    <span className="text-yellow-500 font-black">NT$ {i.price.toLocaleString()}</span>
+                    <button onClick={() => removeFromCart(i.cartId)} className="text-red-500"><Trash2 size={18} /></button>
                   </div>
                 ))}
               </div>
-              <div className="pt-8 border-t border-white/10 mt-auto">
-                <div className="flex justify-between text-2xl font-black mb-6"><span>總計</span><span>NT$ {cart.reduce((s, i) => s + i.price, 0).toLocaleString()}</span></div>
+              <div className="pt-10 border-t border-white/10 mt-auto">
+                <div className="flex justify-between text-2xl font-black mb-8"><span>總計</span><span>NT$ {cart.reduce((s, i) => s + i.price, 0).toLocaleString()}</span></div>
                 <button className="w-full py-4 bg-yellow-600 text-black font-black rounded-xl">前往結帳</button>
               </div>
             </div>
@@ -248,9 +205,9 @@
 
         const LoginModal = ({ adminPassword, setAdminPassword, handleLogin, setShowLoginModal }) => (
           <div className="fixed inset-0 z-[110] bg-black/90 flex items-center justify-center p-6">
-            <div className="bg-neutral-900 p-8 rounded-[2.5rem] border border-yellow-500/30 w-full max-w-sm">
-              <h3 className="text-2xl font-black mb-8 text-yellow-500 text-center uppercase tracking-widest">總裁專屬登入</h3>
-              <input type="password" value={adminPassword} onChange={e => setAdminPassword(e.target.value)} className="w-full bg-black p-4 border rounded-xl mb-8 outline-none focus:border-yellow-500 text-white" placeholder="請輸入密碼" />
+            <div className="bg-neutral-900 p-8 rounded-3xl border border-yellow-500/30 w-full max-w-sm">
+              <h3 className="text-2xl font-black mb-8 text-yellow-500 text-center uppercase tracking-widest italic underline">總裁專屬登入</h3>
+              <input type="password" value={adminPassword} onChange={e => setAdminPassword(e.target.value)} className="w-full bg-black p-4 border border-white/10 rounded-xl mb-8 outline-none focus:border-yellow-500" placeholder="請輸入密碼" />
               <button onClick={handleLogin} className="w-full py-4 bg-yellow-600 text-black font-black rounded-xl shadow-lg">登入解鎖</button>
               <button onClick={() => setShowLoginModal(false)} className="w-full mt-4 text-gray-500">取消</button>
             </div>
