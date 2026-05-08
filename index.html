@@ -3,92 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YAO-TITAN 曜鈦精密科技</title>
+    <title>YAO-TITAN 曜鈦精密科技 | 曜鈦，為極致性能而生</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;900&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #000; color: #fff; }
-        .titan-gold { color: #CA8A04; }
-        .bg-titan-gold { background-color: #CA8A04; }
-        .glass-card { background: rgba(20, 20, 20, 0.8); border: 1px solid rgba(202, 138, 4, 0.2); }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700;900&display=swap');
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #000; color: #fff; overflow-x: hidden; }
+        .gold-glow { text-shadow: 0 0 20px rgba(202, 138, 4, 0.6); }
+        .glass-header { background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(202, 138, 4, 0.2); }
+        .titan-gradient { background: linear-gradient(to bottom, #CA8A04, #A16207); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-mask { background: radial-gradient(circle at center, rgba(202,138,4,0.1) 0%, rgba(0,0,0,0) 70%); }
     </style>
 </head>
 <body>
+    <div id="root"></div>
 
-    <nav class="fixed w-full z-50 bg-black/90 border-b border-yellow-600/30 px-6 py-4 flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-            <div class="bg-titan-gold p-1.5 rounded-lg">
-                <span class="font-bold text-black text-xl">Y</span>
-            </div>
-            <span class="text-2xl font-bold tracking-tighter">YAO <span class="titan-gold">TITAN</span></span>
-        </div>
-        <div class="hidden md:flex space-x-8 text-sm font-medium tracking-widest text-gray-400">
-            <a href="#" class="hover:text-yellow-500">首頁</a>
-            <a href="#products" class="hover:text-yellow-500">產品系列</a>
-            <a href="#" class="hover:text-yellow-500">技術解析</a>
-            <a href="#" class="titan-gold">管理登入</a>
-        </div>
-    </nav>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { ShoppingBag, Settings, Zap, ChevronRight, Menu, X, ShieldCheck } = lucide;
 
-    <header class="pt-40 pb-20 px-6 text-center">
-        <h2 class="text-sm uppercase tracking-[0.5em] titan-gold mb-4">Precision Engineering</h2>
-        <h1 class="text-5xl md:text-8xl font-black mb-8 leading-tight">曜鈦精密科技</h1>
-        <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-12">
-            專為極致性能而生。全球領先鈦合金凸輪軸專家，重新定義引擎爆發力的上限。
-        </p>
-        <a href="#products" class="px-12 py-4 bg-titan-gold text-black font-bold text-lg hover:bg-yellow-500 transition-all shadow-[0_0_30px_rgba(202,138,4,0.3)]">
-            瀏覽產品目錄
-        </a>
-    </header>
+        function App() {
+            const [isAdminMode, setIsAdminMode] = useState(false);
+            const [isCartOpen, setIsCartOpen] = useState(false);
 
-    <section id="products" class="py-20 px-6 max-w-7xl mx-auto">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl font-bold italic underline decoration-yellow-600 underline-offset-8">核心產品系列</h2>
-        </div>
+            useEffect(() => { lucide.createIcons(); }, []);
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="glass-card rounded-xl overflow-hidden group hover:border-yellow-600/50 transition-all">
-                <img src="https://images.unsplash.com/photo-1558981403-c5f11bbdba27?auto=format&fit=crop&w=800&q=80" class="w-full h-56 object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
-                <div class="p-6">
-                    <p class="text-xs titan-gold mb-2">凸輪軸 | 勁戰六代 / 水冷BWS</p>
-                    <h3 class="text-xl font-bold mb-4">賽道狂飆 高角度凸輪軸</h3>
-                    <div class="flex justify-between items-center">
-                        <span class="text-2xl font-black text-white">NT$ 12,800</span>
-                        <button class="bg-white text-black px-4 py-2 text-sm font-bold rounded">加入購物車</button>
-                    </div>
+            const handleAdminLogin = () => {
+                const pass = prompt('請輸入管理員授權碼：');
+                if (pass === 'Aeon.1388') {
+                    setIsAdminMode(true);
+                    alert('噗馬哥總裁，歡迎登入戰情中心！');
+                }
+            };
+
+            return (
+                <div className="min-h-screen relative">
+                    {/* 1. 曜鈦極致導覽列 */}
+                    <nav className="fixed w-full z-50 glass-header px-8 py-5 flex justify-between items-center">
+                        <div className="flex items-center space-x-3">
+                            <div className="bg-yellow-600 p-1 rounded-sm">
+                                <Zap size={22} className="text-black fill-current" />
+                            </div>
+                            <span className="text-xl font-black tracking-widest text-white uppercase">
+                                曜鈦精密科技
+                            </span>
+                        </div>
+                        
+                        <div className="hidden lg:flex space-x-12 text-sm font-bold tracking-[0.2em] text-gray-400">
+                            <a href="#" className="hover:text-yellow-500 transition-colors">霸主起源</a>
+                            <a href="#" className="hover:text-yellow-500 transition-colors">神級改裝品</a>
+                            <a href="#" className="hover:text-yellow-500 transition-colors">黑科技支持</a>
+                            <a href="#" className="hover:text-yellow-500 transition-colors">聯絡我們</a>
+                        </div>
+
+                        <div className="flex items-center space-x-6">
+                            <button onClick={() => setIsCartOpen(true)} className="text-yellow-600 hover:text-yellow-400 transition-transform hover:scale-110">
+                                <ShoppingBag size={24} />
+                            </button>
+                            <button onClick={handleAdminLogin} className="p-1 border border-yellow-600/50 rounded-sm text-yellow-600 hover:bg-yellow-600 hover:text-black transition-all">
+                                <Settings size={18} />
+                            </button>
+                        </div>
+                    </nav>
+
+                    {/* 2. 動力解封：英雄主視圖 */}
+                    <header className="relative pt-64 pb-40 px-6 flex flex-col items-center justify-center text-center">
+                        <div className="absolute inset-0 hero-mask pointer-events-none"></div>
+                        
+                        {/* 曜鈦標誌裝飾 */}
+                        <div className="mb-12 relative">
+                            <div className="absolute inset-0 blur-3xl bg-yellow-600/20 rounded-full"></div>
+                            <img 
+                                src="https://images.unsplash.com/photo-1558981403-c5f11bbdba27?auto=format&fit=crop&w=400&q=80" 
+                                className="w-48 h-48 object-cover rounded-full border-4 border-yellow-600/30 p-2 shadow-[0_0_50px_rgba(202,138,4,0.3)] relative z-10"
+                            />
+                        </div>
+
+                        <h2 className="text-lg md:text-xl font-bold tracking-[0.8em] text-yellow-600 mb-6 uppercase gold-glow">
+                            Precision Engineering
+                        </h2>
+                        <h1 className="text-6xl md:text-9xl font-black mb-6 leading-tight">
+                            動力解封
+                        </h1>
+                        <h1 className="text-4xl md:text-7xl font-black titan-gradient mb-12">
+                            顛覆業界的極致效能
+                        </h1>
+
+                        <p className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto mb-16 leading-relaxed px-4">
+                            明明比誰都渴望速度，卻總是受限於原廠封印？<br/>
+                            換上<span className="text-yellow-600 font-bold">曜鈦精密</span>，您的座駕就是公路上的<span className="text-yellow-500 underline underline-offset-8">神級外掛</span>。
+                        </p>
+
+                        <div className="flex flex-col md:flex-row gap-6">
+                            <button className="px-16 py-5 bg-yellow-600 text-black font-black text-xl tracking-widest hover:bg-yellow-500 transition-all shadow-[0_0_40px_rgba(202,138,4,0.4)]">
+                                賽道級黑科技全面開放
+                            </button>
+                        </div>
+                    </header>
+
+                    {/* 3. 產品系列區塊預留 (依照您的截圖排版) */}
+                    <section className="py-32 px-10 max-w-7xl mx-auto border-t border-white/5">
+                        <div className="flex justify-between items-end mb-20">
+                            <div>
+                                <h3 className="text-4xl font-black italic mb-2">核心產品系列</h3>
+                                <div className="h-1 w-24 bg-yellow-600"></div>
+                            </div>
+                            <button className="text-yellow-600 font-bold tracking-widest hover:mr-2 transition-all">VIEW ALL →</button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 text-center">
+                            <div className="p-12 border border-white/5 bg-zinc-900/50 group hover:border-yellow-600/30 transition-all">
+                                <h4 className="text-2xl font-bold mb-4">神級改裝品</h4>
+                                <p className="text-gray-500 mb-8">從鈦合金凸輪軸到精密鍛造套件，釋放引擎深處的野性。</p>
+                                <button className="text-yellow-600 border-b border-yellow-600 pb-1">立即探索</button>
+                            </div>
+                            <div className="p-12 border border-white/5 bg-zinc-900/50 group hover:border-yellow-600/30 transition-all">
+                                <h4 className="text-2xl font-bold mb-4">黑科技支持</h4>
+                                <p className="text-gray-500 mb-8">每一項產品都經過極端測試，確保耐用度與性能的完美平衡。</p>
+                                <button className="text-yellow-600 border-b border-yellow-600 pb-1">技術手冊</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* 頁尾 */}
+                    <footer className="py-20 text-center border-t border-white/5 bg-zinc-950">
+                        <p className="text-gray-600 text-sm tracking-widest">© 2026 YAO-TITAN PRECISION TECHNOLOGY. ALL RIGHTS RESERVED.</p>
+                        <p className="mt-4 text-yellow-900 font-bold">由 噗馬哥總裁 領軍研發</p>
+                    </footer>
                 </div>
-            </div>
+            );
+        }
 
-            <div class="glass-card rounded-xl overflow-hidden group hover:border-yellow-600/50 transition-all">
-                <img src="https://images.unsplash.com/photo-1611039801831-28562d4e78a2?auto=format&fit=crop&w=800&q=80" class="w-full h-56 object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
-                <div class="p-6">
-                    <p class="text-xs titan-gold mb-2">鍛造活塞 | DRG 158 / MMBCU</p>
-                    <h3 class="text-xl font-bold mb-4">T6 航太級 鍛造輕量活塞</h3>
-                    <div class="flex justify-between items-center">
-                        <span class="text-2xl font-black text-white">NT$ 8,500</span>
-                        <button class="bg-white text-black px-4 py-2 text-sm font-bold rounded">加入購物車</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-card rounded-xl overflow-hidden group hover:border-yellow-600/50 transition-all">
-                <img src="https://images.unsplash.com/photo-1589118949245-7d38baf380d6?auto=format&fit=crop&w=800&q=80" class="w-full h-56 object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
-                <div class="p-6">
-                    <p class="text-xs titan-gold mb-2">傳動系統 | KRV 180</p>
-                    <h3 class="text-xl font-bold mb-4">奔雷 削剪式前普利盤組</h3>
-                    <div class="flex justify-between items-center">
-                        <span class="text-2xl font-black text-white">NT$ 4,200</span>
-                        <button class="bg-white text-black px-4 py-2 text-sm font-bold rounded">加入購物車</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer class="py-20 border-t border-gray-900 text-center text-gray-500 text-sm">
-        <p>© 2026 YAO-TITAN 曜鈦精密科技. All Rights Reserved.</p>
-        <p class="mt-2 titan-gold">由 噗馬哥總裁 領軍研發</p>
-    </footer>
-
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>
