@@ -3,263 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YAO-TITAN 曜鈦精密科技 | 動力解封，顛覆極限</title>
+    <title>YAO-TITAN 曜鈦精密科技 | 注入賽道靈魂，解鎖動力封印</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700;900&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #050505; color: #fff; scroll-behavior: smooth; }
-        .gold-glow { text-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
-        .titan-gradient { background: linear-gradient(to bottom, #FFD700, #B8860B); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .glass-nav { background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 215, 0, 0.15); }
-        .panel-gold { background: #111; border: 1px solid rgba(255, 215, 0, 0.1); }
-        .btn-titan { background: linear-gradient(to right, #ca8a04, #eab308); color: black; font-weight: 900; box-shadow: 0 10px 30px rgba(202, 138, 4, 0.3); }
-        .hidden { display: none !important; }
-        .fade-in { animation: fadeIn 0.8s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        body { font-family: 'Noto Sans TC', sans-serif; }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        /* 針對動畫優化 */
+        .animate-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body>
+<body class="bg-[#0a0a0a] text-gray-100">
+    <div id="root"></div>
 
-    <nav class="fixed top-0 w-full z-50 glass-nav h-24 flex items-center justify-between px-10">
-        <div class="flex items-center gap-4 cursor-pointer" onclick="navigate('home')">
-            <img src="https://i.postimg.cc/1tX4HVmJ/Chat-GPT-Image-2026nian4yue29ri-xia-wu11-18-56.png" class="h-16 drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]">
-            <span class="text-2xl font-black tracking-[0.2em] titan-gradient hidden lg:block uppercase">曜鈦精密科技</span>
-        </div>
+    <script type="text/babel">
+        // 2. 解構 React 與 Lucide 功能 (取代 import)
+        const { useState, useEffect, useMemo } = React;
+        const { 
+          ShoppingBag, Settings, Wrench, Mail, ChevronRight, 
+          Plus, Trash2, Cpu, Zap, ShieldCheck, Menu, X, PlusCircle, 
+          Camera, TrendingUp, Eye, EyeOff, Edit3, BarChart3, Bell, Phone 
+        } = LucideReact;
 
-        <div class="hidden lg:flex items-center space-x-12 text-sm font-bold tracking-[0.3em] text-gray-400">
-            <button onclick="navigate('brand')" class="hover:text-yellow-500 transition-all">霸主起源</button>
-            <button onclick="navigate('products')" class="hover:text-yellow-500 transition-all text-yellow-600">神級改裝品</button>
-            <button onclick="navigate('tech')" class="hover:text-yellow-500 transition-all">黑科技支持</button>
-            <button onclick="navigate('contact')" class="hover:text-yellow-500 transition-all">聯絡我們</button>
-        </div>
+        // --- 預設分類與產品資料 ---
+        const INITIAL_CATEGORIES = ['凸輪軸', '鍛造活塞', '前普利盤', '傳動離合器'];
+        const INITIAL_PRODUCTS = [
+          { id: 1, name: '賽道狂飆級 高角度凸輪軸', price: 12800, image: 'https://images.unsplash.com/photo-1558981403-c5f11bbdba27?auto=format&fit=crop&q=80&w=800', category: '凸輪軸', model: '勁戰六代 / 水冷BWS', stock: 15, sales: 128 },
+          { id: 2, name: 'T6航太級 鍛造輕量活塞', price: 8500, image: 'https://images.unsplash.com/photo-1611039801831-28562d4e78a2?auto=format&fit=crop&q=80&w=800', category: '鍛造活塞', model: 'DRG 158 / MMBCU', stock: 0, sales: 85 },
+          { id: 3, name: '秒殺起步 前普利盤套件', price: 4200, image: 'https://images.unsplash.com/photo-1589118949245-7d38baf380d6?auto=format&fit=crop&q=80&w=800', category: '前普利盤', model: 'KRV 180', stock: 20, sales: 310 },
+          { id: 4, name: '暴力咬合 傳動離合器總成', price: 5800, image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&q=80&w=800', category: '傳動離合器', model: '全車系通用', stock: 5, sales: 240 }
+        ];
 
-        <div class="flex items-center gap-6">
-            <button onclick="toggleCart(true)" class="relative text-yellow-500 hover:scale-110 transition-transform">
-                <i data-lucide="shopping-bag" size="28"></i>
-                <span id="cart-badge" class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full border-2 border-black hidden">0</span>
+        const App = () => {
+          const [currentPage, setCurrentPage] = useState('home');
+          const [categories, setCategories] = useState(INITIAL_CATEGORIES);
+          const [products, setProducts] = useState(INITIAL_PRODUCTS);
+          const [cart, setCart] = useState([]);
+          const [isCartOpen, setIsCartOpen] = useState(false);
+          const [isMenuOpen, setIsMenuOpen] = useState(false);
+          const [isAdminMode, setIsAdminMode] = useState(false);
+          const [showLoginModal, setShowLoginModal] = useState(false);
+          const [adminPassword, setAdminPassword] = useState('');
+          const [showPassword, setShowPassword] = useState(false);
+          const [newProduct, setNewProduct] = useState({ id: null, name: '', price: '', image: null, category: INITIAL_CATEGORIES[0], model: '', stock: 10 });
+          const [isEditing, setIsEditing] = useState(false);
+          const [newCategoryName, setNewCategoryName] = useState('');
+          const [notifyProduct, setNotifyProduct] = useState(null);
+          const [contactForm, setContactForm] = useState({ name: '', phone: '', email: '', message: '' });
+
+          const stats = useMemo(() => {
+            const currentMonthRevenue = products.reduce((acc, p) => acc + (p.price * Math.floor(p.sales * 0.1)), 0) + 1250000;
+            const yearlyRevenue = products.reduce((acc, p) => acc + (p.price * p.sales), 0) + 15800000;
+            return { currentMonthRevenue, yearlyRevenue };
+          }, [products]);
+
+          const handleLogin = () => {
+            if (adminPassword === 'Aeon.1388') {
+              setIsAdminMode(true);
+              setShowLoginModal(false);
+              setAdminPassword('');
+            } else {
+              alert('密碼錯誤！請重新輸入。');
+            }
+          };
+
+          const addToCart = (product) => {
+            setCart([...cart, { ...product, cartId: Date.now() }]);
+            setIsCartOpen(true);
+          };
+
+          const removeFromCart = (cartId) => {
+            setCart(cart.filter(item => item.cartId !== cartId));
+          };
+
+          const handleImageUpload = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+              const imageUrl = URL.createObjectURL(file);
+              setNewProduct({ ...newProduct, image: imageUrl });
+            }
+          };
+
+          const saveProduct = () => {
+            if (newProduct.name && newProduct.price && newProduct.image && newProduct.model) {
+              if (isEditing) {
+                setProducts(products.map(p => p.id === newProduct.id ? { ...newProduct, price: parseInt(newProduct.price), stock: parseInt(newProduct.stock) } : p));
+              } else {
+                setProducts([{ ...newProduct, id: Date.now(), price: parseInt(newProduct.price), stock: parseInt(newProduct.stock), sales: 0 }, ...products]);
+              }
+              resetForm();
+            } else {
+              alert('請填寫完整產品資訊');
+            }
+          };
+
+          const resetForm = () => {
+            setNewProduct({ id: null, name: '', price: '', image: null, category: categories[0], model: '', stock: 10 });
+            setIsEditing(false);
+          };
+
+          const NavItem = ({ id, label }) => (
+            <button 
+              onClick={() => { setCurrentPage(id); setIsMenuOpen(false); window.scrollTo(0, 0); }}
+              className={`px-4 py-2 text-sm md:text-base uppercase tracking-widest transition-all ${currentPage === id ? 'text-[#FFD700] font-bold' : 'text-gray-400 hover:text-white'}`}
+            >
+              {label}
             </button>
-            <button onclick="adminLogin()" class="text-gray-700 hover:text-yellow-500 transition-colors"><i data-lucide="settings" size="22"></i></button>
-        </div>
-    </nav>
+          );
 
-    <main id="view-root" class="min-h-screen pt-24">
-        </main>
+          return (
+            <div className="min-h-screen bg-[#0a0a0a] text-gray-100 font-sans selection:bg-[#FFD700] selection:text-black pb-safe">
+              {/* 導航欄 */}
+              <nav className="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
+                <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
+                  <div className="flex items-center gap-4 cursor-pointer group" onClick={() => setCurrentPage('home')}>
+                    <img src="https://i.postimg.cc/1tX4HVmJ/Chat-GPT-Image-2026nian4yue29ri-xia-wu11-18-56.png" className="h-14 object-contain drop-shadow-[0_0_8px_rgba(255,215,0,0.5)] group-hover:scale-105 transition-transform" />
+                    <div className="hidden sm:block">
+                      <span className="text-2xl font-black tracking-widest bg-gradient-to-r from-yellow-500 to-yellow-200 bg-clip-text text-transparent">曜鈦精密科技</span>
+                    </div>
+                  </div>
 
-    <div id="cart-drawer" class="fixed inset-0 z-[100] hidden">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="toggleCart(false)"></div>
-        <div class="absolute right-0 top-0 h-full w-full max-w-md bg-neutral-900 border-l border-yellow-600/30 p-10 flex flex-col shadow-2xl">
-            <div class="flex justify-between items-center mb-10">
-                <h2 class="text-3xl font-black text-yellow-500 italic tracking-tighter">SHOPPING BAG</h2>
-                <button onclick="toggleCart(false)" class="text-gray-500 hover:rotate-90 transition-all"><i data-lucide="x"></i></button>
-            </div>
-            <div id="cart-list-container" class="flex-grow overflow-y-auto space-y-6">
+                  <div className="hidden lg:flex items-center space-x-1">
+                    <NavItem id="brand" label="霸主起源" />
+                    <NavItem id="products" label="神級改裝品" />
+                    <NavItem id="tech" label="黑科技支持" />
+                    <NavItem id="contact" label="聯絡我們" />
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <button onClick={() => setIsCartOpen(true)} className="relative p-2 text-yellow-500"><ShoppingBag size={24} />{cart.length > 0 && <span className="absolute top-0 right-0 bg-red-600 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">{cart.length}</span>}</button>
+                    <button className="lg:hidden p-2 text-yellow-500" onClick={() => setIsMenuOpen(!isMenuOpen)}>{isMenuOpen ? <X size={28} /> : <Menu size={28} />}</button>
+                  </div>
                 </div>
-            <div class="border-t border-white/10 pt-10">
-                <div class="flex justify-between text-2xl font-black mb-8"><span>總計</span><span id="cart-total-price" class="text-yellow-500 font-mono">NT$ 0</span></div>
-                <button class="w-full py-5 btn-titan text-xl italic tracking-[0.2em] hover:brightness-110 transition-all">前往結帳，解除封印</button>
+              </nav>
+
+              <main className="pt-24 min-h-[calc(100vh-400px)] text-center">
+                {currentPage === 'home' && <HomeSection setCurrentPage={setCurrentPage} />}
+                {currentPage === 'products' && (
+                    <ProductsSection 
+                        products={products} 
+                        isAdminMode={isAdminMode} 
+                        stats={stats} 
+                        categories={categories}
+                        newProduct={newProduct}
+                        setNewProduct={setNewProduct}
+                        saveProduct={saveProduct}
+                        addToCart={addToCart}
+                        setNotifyProduct={setNotifyProduct}
+                    />
+                )}
+                {currentPage === 'brand' && <div className="py-20 text-4xl font-bold">霸主起源內容 (載入中...)</div>}
+                {currentPage === 'tech' && <div className="py-20 text-4xl font-bold text-yellow-500">黑科技解析 (載入中...)</div>}
+                {currentPage === 'contact' && <div className="py-20 text-4xl font-bold">聯絡我們 (載入中...)</div>}
+              </main>
+
+              {/* 登入 Modal */}
+              {showLoginModal && (
+                <div className="fixed inset-0 z-[110] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+                  <div className="bg-neutral-900 border border-yellow-500/30 p-8 rounded-2xl w-full max-w-sm">
+                    <h3 className="text-2xl font-black mb-6 text-center text-yellow-500">總裁專屬後台登入</h3>
+                    <input type={showPassword ? "text" : "password"} value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} className="w-full bg-black border rounded-xl px-4 py-3 mb-6" placeholder="輸入密碼" />
+                    <button onClick={handleLogin} className="w-full py-3 bg-yellow-600 text-black font-black rounded-xl">登入解鎖</button>
+                    <button onClick={() => setShowLoginModal(false)} className="w-full mt-2 text-gray-500">取消</button>
+                  </div>
+                </div>
+              )}
+
+              {/* 購物車側欄 */}
+              {isCartOpen && (
+                <div className="fixed inset-0 z-[100] bg-black/60 flex justify-end">
+                  <div className="w-full max-w-md bg-neutral-900 h-full p-8 border-l border-white/10 relative">
+                    <button onClick={() => setIsCartOpen(false)} className="absolute top-6 right-6"><X /></button>
+                    <h2 className="text-2xl font-bold mb-8 flex items-center gap-2"><ShoppingBag /> 購物車清單</h2>
+                    <div className="space-y-4">
+                        {cart.length === 0 ? <p>購物車目前空空如也</p> : cart.map(item => (
+                            <div key={item.cartId} className="flex justify-between bg-white/5 p-4 rounded-xl">
+                                <span>{item.name}</span>
+                                <span className="text-yellow-500">NT$ {item.price.toLocaleString()}</span>
+                            </div>
+                        ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <footer className="bg-black py-10 mt-20 border-t border-white/10 text-center">
+                <p className="text-gray-500">© 2026 曜鈦精密科技. All Rights Reserved.</p>
+                <button onClick={() => setShowLoginModal(true)} className="mt-4 text-xs text-gray-700">管理員登入</button>
+              </footer>
             </div>
-        </div>
-    </div>
-
-    <div id="notify-modal" class="fixed inset-0 z-[110] bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-6">
-        <div class="bg-neutral-900 border border-red-500/30 p-10 rounded-[2.5rem] w-full max-w-md relative shadow-2xl">
-            <button onclick="toggleNotify(false)" class="absolute top-6 right-6 text-gray-500"><i data-lucide="x"></i></button>
-            <div class="text-red-500 mb-6 flex items-center gap-3"><i data-lucide="bell" size="32"></i><h3 class="text-2xl font-black uppercase">貨到自動通知</h3></div>
-            <p class="text-gray-400 text-sm mb-8 leading-relaxed">此神級裝備目前缺貨中，請留下您的聯繫方式，補貨時我們將第一時間發信通知您！</p>
-            <div class="space-y-4 mb-10">
-                <input type="text" placeholder="您的姓名" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none focus:border-red-500 text-white">
-                <input type="email" placeholder="電子郵件信箱" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none focus:border-red-500 text-white">
-            </div>
-            <button onclick="submitNotify()" class="w-full py-5 bg-red-600 hover:bg-red-500 text-white font-black rounded-xl uppercase tracking-widest transition-all">確認送出設定</button>
-        </div>
-    </div>
-
-    <footer class="bg-black py-24 border-t border-white/5 text-center px-10">
-        <div class="flex flex-col items-center mb-10">
-            <img src="https://i.postimg.cc/1tX4HVmJ/Chat-GPT-Image-2026nian4yue29ri-xia-wu11-18-56.png" class="h-12 mb-6 opacity-50 grayscale">
-            <p class="text-gray-600 text-xs tracking-[0.5em] uppercase">© 2026 YAO-TITAN PRECISION TECHNOLOGY. ALL RIGHTS RESERVED.</p>
-        </div>
-        <div class="text-yellow-900 font-black italic tracking-widest text-lg">研發監製：噗馬哥總裁</div>
-    </footer>
-
-    <script>
-        // 1. 核心數據
-        let state = {
-            isAdmin: false,
-            currentPage: 'home',
-            categories: ['凸輪軸', '鍛造活塞', '前普利盤', '傳動離合器'],
-            products: [
-                { id: 1, name: '賽道狂飆級 高角度凸輪軸', price: 12800, category: '凸輪軸', model: '勁戰六代 / 水冷BWS', stock: 15, sales: 128, image: 'https://images.unsplash.com/photo-1558981403-c5f11bbdba27?auto=format&fit=crop&q=80&w=800' },
-                { id: 2, name: 'T6航太級 鍛造輕量活塞', price: 8500, category: '鍛造活塞', model: 'DRG 158 / MMBCU', stock: 0, sales: 85, image: 'https://images.unsplash.com/photo-1611039801831-28562d4e78a2?auto=format&fit=crop&q=80&w=800' },
-                { id: 3, name: '秒殺起步 前普利盤套件', price: 4200, category: '前普利盤', model: 'KRV 180', stock: 20, sales: 310, image: 'https://images.unsplash.com/photo-1589118949245-7d38baf380d6?auto=format&fit=crop&q=80&w=800' },
-                { id: 4, name: '暴力咬合 傳動離合器總成', price: 5800, category: '傳動離合器', model: '全車系通用', stock: 5, sales: 240, image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&q=80&w=800' }
-            ],
-            cart: []
+          );
         };
 
-        // 2. 導航渲染引擎
-        function navigate(pageId) {
-            state.currentPage = pageId;
-            const root = document.getElementById('view-root');
-            window.scrollTo(0, 0);
+        const HomeSection = ({ setCurrentPage }) => (
+          <section className="animate-in py-20">
+            <img src="https://i.postimg.cc/1tX4HVmJ/Chat-GPT-Image-2026nian4yue29ri-xia-wu11-18-56.png" className="h-48 mx-auto mb-8 drop-shadow-[0_0_20px_rgba(255,215,0,0.4)]" />
+            <h1 className="text-6xl font-black mb-8 leading-tight">動力解封<br /><span className="text-yellow-500">顛覆業界的極致效能</span></h1>
+            <button onClick={() => setCurrentPage('products')} className="px-10 py-5 bg-yellow-600 text-black font-black text-lg rounded-full">解鎖神裝清單</button>
+          </section>
+        );
 
-            if (pageId === 'home') {
-                root.innerHTML = `
-                    <section class="min-h-screen flex flex-col items-center justify-center text-center px-6 relative overflow-hidden fade-in">
-                        <div class="absolute inset-0 bg-gradient-to-b from-yellow-600/5 to-transparent pointer-events-none"></div>
-                        <div class="mb-14 relative">
-                            <div class="absolute inset-0 blur-[80px] bg-yellow-600/20 rounded-full"></div>
-                            <img src="https://i.postimg.cc/1tX4HVmJ/Chat-GPT-Image-2026nian4yue29ri-xia-wu11-18-56.png" class="w-72 h-72 object-contain relative z-10 drop-shadow-[0_0_50px_rgba(255,215,0,0.4)]">
-                        </div>
-                        <h2 class="text-xl font-bold tracking-[1.2em] text-yellow-600 mb-10 uppercase gold-glow">Precision Engineering</h2>
-                        <h1 class="text-7xl md:text-[140px] font-black mb-6 leading-none tracking-tighter text-white">動力解封</h1>
-                        <h1 class="text-4xl md:text-8xl font-black titan-gradient mb-16 italic uppercase tracking-tighter">顛覆業界的極致效能</h1>
-                        <p class="text-xl md:text-2xl text-gray-400 max-w-4xl mx-auto mb-20 leading-relaxed font-light">
-                            明明比誰都渴望速度，卻總是受限於原廠封印？<br>
-                            換上<span class="text-yellow-500 font-black">曜鈦精密</span>，您的座駕就是公路上的<span class="text-yellow-500 underline underline-offset-8">神級外掛</span>。
-                        </p>
-                        <button onclick="navigate('products')" class="px-20 py-7 btn-titan text-2xl tracking-[0.3em] hover:scale-105 transition-all">解鎖神裝清單</button>
-                    </section>
-                `;
-            } else if (pageId === 'products') {
-                renderProductsPage();
-            } else {
-                root.innerHTML = `<div class="py-64 text-center text-4xl font-black titan-gradient uppercase tracking-widest">${pageId} 頁面建置中</div>`;
-            }
-            lucide.createIcons();
-        }
-
-        // 3. 產品頁面與戰情室邏輯
-        function renderProductsPage() {
-            const root = document.getElementById('view-root');
-            let adminSection = state.isAdmin ? `
-                <div class="mb-20 space-y-10 fade-in">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        <div class="p-10 panel-gold rounded-[2.5rem] shadow-2xl border-yellow-500/40 relative overflow-hidden group">
-                            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity"><i data-lucide="bar-chart-3" size="80"></i></div>
-                            <p class="text-gray-500 font-black text-sm uppercase tracking-widest mb-2">本月累積預估營收</p>
-                            <p class="text-6xl font-black text-white">NT$ ${(state.products.reduce((acc, p) => acc + (p.price * Math.floor(p.sales * 0.1)), 0) + 1250000).toLocaleString()}</p>
-                        </div>
-                        <div class="p-10 panel-gold rounded-[2.5rem] shadow-2xl border-yellow-500/40 relative overflow-hidden group">
-                            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity"><i data-lucide="trending-up" size="80"></i></div>
-                            <p class="text-gray-500 font-black text-sm uppercase tracking-widest mb-2">年度總計實收額</p>
-                            <p class="text-6xl font-black text-white font-mono">NT$ ${(state.products.reduce((acc, p) => acc + (p.price * p.sales), 0) + 15800000).toLocaleString()}</p>
-                        </div>
+        const ProductsSection = (props) => (
+          <section className="max-w-7xl mx-auto px-6 py-20 text-left">
+            <h2 className="text-5xl font-black mb-12">神級改裝品清單</h2>
+            
+            {props.isAdminMode && (
+                <div className="grid grid-cols-2 gap-6 mb-12">
+                    <div className="bg-neutral-900 p-8 rounded-3xl border border-yellow-500/30">
+                        <p className="text-gray-400">本月累積營收</p>
+                        <p className="text-4xl font-black">NT$ {props.stats.currentMonthRevenue.toLocaleString()}</p>
                     </div>
-                    <div class="p-10 panel-gold rounded-[2.5rem] border-yellow-600/30 text-left">
-                        <h3 class="text-2xl font-black text-yellow-500 mb-8 flex items-center gap-3 uppercase italic"><i data-lucide="wrench"></i> 總裁戰情指揮後台</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <input id="p-name" placeholder="產品名稱" class="bg-black border border-white/10 p-5 rounded-2xl outline-none focus:border-yellow-500">
-                            <input id="p-price" type="number" placeholder="建議售價" class="bg-black border border-white/10 p-5 rounded-2xl outline-none focus:border-yellow-500">
-                            <input id="p-model" placeholder="適配機種" class="bg-black border border-white/10 p-5 rounded-2xl outline-none focus:border-yellow-500">
-                        </div>
-                        <button onclick="addProduct()" class="w-full mt-8 py-5 btn-titan rounded-2xl text-xl tracking-[0.2em] uppercase">確認上架全新武裝</button>
+                    <div className="bg-neutral-900 p-8 rounded-3xl border border-yellow-500/30">
+                        <p className="text-gray-400">年度總計營收</p>
+                        <p className="text-4xl font-black">NT$ {props.stats.yearlyRevenue.toLocaleString()}</p>
                     </div>
                 </div>
-            ` : '';
+            )}
 
-            root.innerHTML = `
-                <div class="max-w-7xl mx-auto px-10 py-24 text-left">
-                    <div class="mb-20">
-                        <h2 class="text-6xl font-black italic tracking-tighter mb-4 uppercase">神級改裝品 <span class="titan-gradient tracking-widest">CORE SERIES</span></h2>
-                        <div class="h-3 w-48 bg-yellow-600"></div>
-                    </div>
-                    ${adminSection}
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-                        ${state.products.map(p => `
-                            <div class="panel-gold rounded-[3rem] overflow-hidden group hover:border-yellow-500/50 transition-all duration-500 flex flex-col shadow-xl">
-                                <div class="aspect-square relative overflow-hidden bg-black">
-                                    <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-1000">
-                                    <div class="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex items-center justify-center p-10 transition-all">
-                                        <button onclick="${p.stock > 0 ? `buy(${p.id})` : `toggleNotify(true)`}" class="w-full py-5 ${p.stock > 0 ? 'bg-yellow-600 text-black' : 'bg-red-700 text-white'} font-black text-xl rounded-2xl uppercase tracking-widest shadow-2xl">
-                                            ${p.stock > 0 ? '解鎖加入購物車' : '到貨自動通知'}
-                                        </button>
-                                    </div>
-                                    ${p.stock <= 0 ? `<div class="absolute top-6 right-6 bg-red-600 text-white px-4 py-1 rounded-full text-xs font-black animate-pulse uppercase">Hot 完售</div>` : ''}
-                                </div>
-                                <div class="p-10 flex-grow text-left">
-                                    <div class="flex justify-between items-start mb-4">
-                                        <span class="text-xs font-black text-yellow-600 bg-yellow-600/10 px-3 py-1 rounded-sm uppercase tracking-widest">${p.category}</span>
-                                        ${state.isAdmin ? `<button onclick="del(${p.id})" class="text-gray-700 hover:text-red-500"><i data-lucide="trash-2" size="20"></i></button>` : ''}
-                                    </div>
-                                    <h3 class="text-2xl font-black text-white mb-4 line-clamp-2 h-16">${p.name}</h3>
-                                    <p class="text-gray-500 text-sm font-bold mb-8 uppercase tracking-widest">適配機種：${p.model}</p>
-                                    <p class="text-3xl font-black text-yellow-500 font-mono tracking-tighter uppercase">NT$ ${p.price.toLocaleString()}</p>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {props.products.map(product => (
+                <div key={product.id} className="bg-neutral-900 rounded-[2rem] overflow-hidden border border-white/10 group hover:border-yellow-500/50 transition-all">
+                  <img src={product.image} className="w-full h-48 object-cover" />
+                  <div className="p-8">
+                    <h3 className="text-xl font-bold mb-2">{product.name}</h3>
+                    <p className="text-yellow-500 font-bold text-2xl mb-6">NT$ {product.price.toLocaleString()}</p>
+                    <button onClick={() => props.addToCart(product)} className="w-full py-4 bg-yellow-600 text-black font-black rounded-xl hover:bg-yellow-500">加入購物車</button>
+                  </div>
                 </div>
-            `;
-            lucide.createIcons();
-        }
+              ))}
+            </div>
+          </section>
+        );
 
-        // 4. 業務功能腳本
-        function buy(id) {
-            const p = state.products.find(x => x.id === id);
-            state.cart.push({ ...p, cartId: Date.now() });
-            updateCart();
-            toggleCart(true);
-        }
-
-        function updateCart() {
-            const list = document.getElementById('cart-list-container');
-            const total = document.getElementById('cart-total-price');
-            const badge = document.getElementById('cart-badge');
-            
-            badge.innerText = state.cart.length;
-            badge.classList.toggle('hidden', state.cart.length === 0);
-            
-            list.innerHTML = state.cart.length === 0 ? `<div class="py-20 text-center text-gray-600 font-black italic uppercase">Bag is Empty</div>` :
-                state.cart.map(i => `
-                    <div class="flex gap-6 bg-white/5 p-5 rounded-[1.5rem] items-center border border-white/5">
-                        <img src="${i.image}" class="w-20 h-20 object-cover rounded-xl border border-white/10">
-                        <div class="flex-grow text-left">
-                            <h4 class="font-bold text-sm text-white">${i.name}</h4>
-                            <p class="text-yellow-600 font-black text-lg mt-2">NT$ ${i.price.toLocaleString()}</p>
-                        </div>
-                        <button onclick="removeFromCart(${i.cartId})" class="text-gray-600 hover:text-red-500 transition-colors"><i data-lucide="trash-2" size="20"></i></button>
-                    </div>
-                `).join('');
-            
-            total.innerText = `NT$ ${state.cart.reduce((s, i) => s + i.price, 0).toLocaleString()}`;
-            lucide.createIcons();
-        }
-
-        function removeFromCart(cid) { state.cart = state.cart.filter(x => x.cartId !== cid); updateCart(); }
-        function toggleCart(show) { document.getElementById('cart-drawer').classList.toggle('hidden', !show); }
-        function toggleNotify(show) { document.getElementById('notify-modal').classList.toggle('hidden', !show); }
-        function submitNotify() { alert('系統已記錄設定！當庫存抵達時，噗馬哥總裁將第一時間通知您。'); toggleNotify(false); }
-
-        function adminLogin() {
-            const pass = prompt('【曜鈦精密 戰情中心驗證】\n請輸入管理員授權密碼：');
-            if (pass === 'Aeon.1388') {
-                state.isAdmin = true;
-                alert('噗馬哥總裁，歡迎登入戰情中心！');
-                navigate('products');
-            } else if (pass !== null) {
-                alert('密碼錯誤，拒絕訪問。');
-            }
-        }
-
-        function addProduct() {
-            const name = document.getElementById('p-name').value;
-            const price = document.getElementById('p-price').value;
-            const model = document.getElementById('p-model').value;
-            if(!name || !price || !model) return alert('請填寫完整資訊');
-            state.products.unshift({
-                id: Date.now(), name, price: parseInt(price), model,
-                image: 'https://images.unsplash.com/photo-1558981403-c5f11bbdba27?auto=format&fit=crop&q=80&w=800',
-                category: state.categories[0], stock: 10, sales: 0
-            });
-            renderProductsPage();
-        }
-
-        function del(id) { state.products = state.products.filter(x => x.id !== id); renderProductsPage(); }
-
-        // 啟動首頁
-        window.onload = () => navigate('home');
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
