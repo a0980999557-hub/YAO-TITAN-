@@ -1,0 +1,755 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  ShoppingBag, Settings, Wrench, Mail, ChevronRight, 
+  Plus, Trash2, Cpu, Zap, ShieldCheck, Menu, X, PlusCircle, 
+  Camera, TrendingUp, Eye, EyeOff, Edit3, BarChart3, Bell, Phone
+} from 'lucide-react';
+
+// 預設分類與產品資料
+const INITIAL_CATEGORIES = ['凸輪軸', '鍛造活塞', '前普利盤', '傳動離合器'];
+
+const INITIAL_PRODUCTS = [
+  { id: 1, name: '賽道狂飆級 高角度凸輪軸', price: 12800, image: 'https://images.unsplash.com/photo-1558981403-c5f91cbba527?auto=format&fit=crop&q=80&w=800', category: '凸輪軸', model: '勁戰六代 / 水冷BWS', stock: 15, sales: 128 },
+  { id: 2, name: 'T6航太級 鍛造輕量活塞', price: 8500, image: 'https://images.unsplash.com/photo-1611039801831-28562d4e78a2?auto=format&fit=crop&q=80&w=800', category: '鍛造活塞', model: 'DRG 158 / MMBCU', stock: 0, sales: 85 },
+  { id: 3, name: '秒殺起步 前普利盤套件', price: 4200, image: 'https://images.unsplash.com/photo-1589118949245-7d38baf380d6?auto=format&fit=crop&q=80&w=800', category: '前普利盤', model: 'KRV 180', stock: 20, sales: 310 },
+  { id: 4, name: '暴力咬合 傳動離合器總成', price: 5800, image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&q=80&w=800', category: '傳動離合器', model: '全車系通用', stock: 5, sales: 240 }
+];
+
+const App = () => {
+  const [currentPage, setCurrentPage] = useState('home');
+  const [categories, setCategories] = useState(INITIAL_CATEGORIES);
+  const [products, setProducts] = useState(INITIAL_PRODUCTS);
+  const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // 後台管理員狀態
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  
+  // 產品編輯與分類管理狀態
+  const [newProduct, setNewProduct] = useState({ id: null, name: '', price: '', image: null, category: INITIAL_CATEGORIES[0], model: '', stock: 10 });
+  const [isEditing, setIsEditing] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+
+  // 貨到通知狀態
+  const [notifyProduct, setNotifyProduct] = useState(null);
+
+  // 聯絡我們表單狀態
+  const [contactForm, setContactForm] = useState({ name: '', phone: '', email: '', message: '' });
+
+  // 模擬營收數據 (實際情況由訂單系統計算)
+  const stats = useMemo(() => {
+    const currentMonthRevenue = products.reduce((acc, p) => acc + (p.price * Math.floor(p.sales * 0.1)), 0) + 1250000;
+    const yearlyRevenue = products.reduce((acc, p) => acc + (p.price * p.sales), 0) + 15800000;
+    return { currentMonthRevenue, yearlyRevenue };
+  }, [products]);
+
+  const handleLogin = () => {
+    if (adminPassword === 'Aeon.1388') {
+      setIsAdminMode(true);
+      setShowLoginModal(false);
+      setAdminPassword('');
+    } else {
+      alert('密碼錯誤！請重新輸入。');
+    }
+  };
+
+  const addToCart = (product) => {
+    setCart([...cart, { ...product, cartId: Date.now() }]);
+    setIsCartOpen(true);
+  };
+
+  const removeFromCart = (cartId) => {
+    setCart(cart.filter(item => item.cartId !== cartId));
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setNewProduct({ ...newProduct, image: imageUrl });
+    }
+  };
+
+  const saveProduct = () => {
+    if (newProduct.name && newProduct.price && newProduct.image && newProduct.model) {
+      if (isEditing) {
+        setProducts(products.map(p => p.id === newProduct.id ? { ...newProduct, price: parseInt(newProduct.price), stock: parseInt(newProduct.stock) } : p));
+      } else {
+        setProducts([{ 
+          ...newProduct, 
+          id: Date.now(), 
+          price: parseInt(newProduct.price),
+          stock: parseInt(newProduct.stock),
+          sales: 0
+        }, ...products]);
+      }
+      resetForm();
+    } else {
+      alert('請填寫完整產品資訊 (名稱、價格、機種、照片)');
+    }
+  };
+
+  const startEditProduct = (product) => {
+    setNewProduct({ ...product });
+    setIsEditing(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const resetForm = () => {
+    setNewProduct({ id: null, name: '', price: '', image: null, category: categories[0], model: '', stock: 10 });
+    setIsEditing(false);
+  };
+
+  const addCategory = () => {
+    if (newCategoryName && !categories.includes(newCategoryName)) {
+      setCategories([...categories, newCategoryName]);
+      setNewCategoryName('');
+    }
+  };
+
+  const removeCategory = (cat) => {
+    if (categories.length > 1) {
+      setCategories(categories.filter(c => c !== cat));
+      // 若刪除的分類有產品，將其移至第一個分類
+      setProducts(products.map(p => p.category === cat ? { ...p, category: categories[0] } : p));
+    } else {
+      alert('至少需要保留一個分類！');
+    }
+  };
+
+  const handleContactSubmit = (e) => {
+    e.preventDefault();
+    const subject = encodeURIComponent('曜鈦精密科技 官網線上詢問');
+    const body = encodeURIComponent(`姓名: ${contactForm.name}\n電話: ${contactForm.phone}\nEmail: ${contactForm.email}\n\n需求內容:\n${contactForm.message}`);
+    window.location.href = `mailto:yaotitascand@gmail.com?subject=${subject}&body=${body}`;
+  };
+
+  const handleNotifySubmit = (e) => {
+    e.preventDefault();
+    alert('已為您設定系統自動通知！當有庫存時，系統會自動發送 Email 至您的信箱。');
+    setNotifyProduct(null);
+  };
+
+  const renderContent = () => {
+    switch (currentPage) {
+      case 'home': return <HomeSection />;
+      case 'brand': return <BrandSection />;
+      case 'products': return <ProductsSection />;
+      case 'tech': return <TechSection />;
+      case 'contact': return <ContactSection />;
+      default: return <HomeSection />;
+    }
+  };
+
+  const NavItem = ({ id, label }) => (
+    <button 
+      onClick={() => { setCurrentPage(id); setIsMenuOpen(false); window.scrollTo(0, 0); }}
+      className={`px-4 py-2 text-sm md:text-base uppercase tracking-widest transition-all ${currentPage === id ? 'text-[#FFD700] font-bold' : 'text-gray-400 hover:text-white'}`}
+    >
+      {label}
+    </button>
+  );
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] text-gray-100 font-sans selection:bg-[#FFD700] selection:text-black pb-safe">
+      {/* 導航欄 */}
+      <nav className="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
+          <div className="flex items-center gap-4 cursor-pointer group" onClick={() => setCurrentPage('home')}>
+            <img 
+              src="https://i.postimg.cc/1tX4HVmJ/Chat-GPT-Image-2026nian4yue29ri-xia-wu11-18-56.png" 
+              alt="曜鈦精密科技 Logo" 
+              className="h-14 object-contain drop-shadow-[0_0_8px_rgba(255,215,0,0.5)] group-hover:scale-105 transition-transform"
+            />
+            <div className="hidden sm:block">
+              <span className="text-2xl font-black tracking-widest bg-gradient-to-r from-yellow-500 to-yellow-200 bg-clip-text text-transparent">
+                曜鈦精密科技
+              </span>
+            </div>
+          </div>
+
+          {/* 桌面端選單 */}
+          <div className="hidden lg:flex items-center space-x-1">
+            <NavItem id="brand" label="霸主起源" />
+            <NavItem id="products" label="神級改裝品" />
+            <NavItem id="tech" label="黑科技支持" />
+            <NavItem id="contact" label="聯絡我們" />
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button onClick={() => setIsCartOpen(true)} className="relative p-2 hover:bg-white/10 rounded-full transition-colors text-yellow-500">
+              <ShoppingBag size={24} />
+              {cart.length > 0 && (
+                <span className="absolute top-0 right-0 bg-red-600 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full border-2 border-black animate-in zoom-in">
+                  {cart.length}
+                </span>
+              )}
+            </button>
+            <button className="lg:hidden p-2 text-yellow-500" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* 手機端選單 */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl p-10 flex flex-col items-center space-y-6 pt-32 animate-in fade-in duration-300">
+          <button className="absolute top-6 right-6 p-2" onClick={() => setIsMenuOpen(false)}>
+            <X size={32} className="text-gray-400 hover:text-white"/>
+          </button>
+          <NavItem id="brand" label="霸主起源" />
+          <NavItem id="products" label="神級改裝品" />
+          <NavItem id="tech" label="黑科技支持" />
+          <NavItem id="contact" label="聯絡我們" />
+        </div>
+      )}
+
+      {/* 管理員登入 Modal */}
+      {showLoginModal && (
+        <div className="fixed inset-0 z-[110] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-neutral-900 border border-yellow-500/30 p-8 rounded-2xl w-full max-w-sm shadow-2xl shadow-yellow-500/10">
+            <h3 className="text-2xl font-black mb-6 text-center text-yellow-500">總裁專屬後台登入</h3>
+            <div className="relative mb-6">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                placeholder="請輸入管理員密碼"
+                className="w-full bg-black border border-white/20 rounded-xl px-4 py-3 outline-none focus:border-yellow-500 text-white"
+              />
+              <button 
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-3.5 text-gray-400 hover:text-yellow-500"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            <div className="flex gap-4">
+              <button onClick={() => setShowLoginModal(false)} className="flex-1 py-3 bg-white/10 hover:bg-white/20 rounded-xl font-bold transition-colors">取消</button>
+              <button onClick={handleLogin} className="flex-1 py-3 bg-yellow-600 hover:bg-yellow-500 text-black font-black rounded-xl transition-colors">登入解鎖</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 貨到通知 Modal */}
+      {notifyProduct && (
+        <div className="fixed inset-0 z-[110] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+          <form onSubmit={handleNotifySubmit} className="bg-neutral-900 border border-red-500/30 p-8 rounded-2xl w-full max-w-md shadow-2xl relative">
+            <button type="button" onClick={() => setNotifyProduct(null)} className="absolute top-4 right-4 text-gray-500 hover:text-white"><X /></button>
+            <div className="flex items-center gap-3 text-red-500 mb-2">
+              <Bell size={24} /> <h3 className="text-xl font-black">貨到自動通知設定</h3>
+            </div>
+            <p className="text-gray-400 text-sm mb-6">商品：<span className="text-white font-bold">{notifyProduct.name}</span> 目前缺貨中，請留下聯絡資訊，補貨時將第一時間發信通知您！</p>
+            
+            <div className="space-y-4 mb-6">
+              <input required type="text" placeholder="您的姓名" className="w-full bg-black border border-white/20 rounded-xl px-4 py-3 outline-none focus:border-red-500 text-white" />
+              <input required type="tel" placeholder="聯絡電話" className="w-full bg-black border border-white/20 rounded-xl px-4 py-3 outline-none focus:border-red-500 text-white" />
+              <input required type="email" placeholder="電子郵件信箱" className="w-full bg-black border border-white/20 rounded-xl px-4 py-3 outline-none focus:border-red-500 text-white" />
+            </div>
+            <button type="submit" className="w-full py-4 bg-red-600 hover:bg-red-500 text-white font-black rounded-xl transition-colors">
+              確認送出設定
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* 購物車抽屜 */}
+      {isCartOpen && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm transition-opacity">
+          <div className="absolute right-0 top-0 h-full w-full max-w-md bg-neutral-900 shadow-2xl flex flex-col border-l border-white/10 animate-in slide-in-from-right duration-300">
+            <div className="p-8 border-b border-white/10 flex justify-between items-center">
+              <h2 className="text-2xl font-bold flex items-center gap-2 text-yellow-500">
+                <ShoppingBag /> 購物車清單
+              </h2>
+              <button onClick={() => setIsCartOpen(false)} className="hover:rotate-90 transition-transform p-2 bg-white/5 rounded-full"><X /></button>
+            </div>
+            
+            <div className="flex-grow overflow-y-auto p-8 space-y-4">
+              {cart.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-gray-500 gap-4 opacity-50">
+                  <ShoppingBag size={48} />
+                  <p>購物車目前空空如也，快去解鎖神級外掛！</p>
+                </div>
+              ) : (
+                cart.map((item) => (
+                  <div key={item.cartId} className="flex gap-4 bg-white/5 p-4 rounded-xl items-center border border-white/5">
+                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-lg" />
+                    <div className="flex-grow">
+                      <h4 className="font-bold text-sm line-clamp-1">{item.name}</h4>
+                      <p className="text-gray-400 text-xs mt-1">機種: {item.model}</p>
+                      <p className="text-yellow-500 font-mono text-sm mt-1">NT$ {item.price.toLocaleString()}</p>
+                    </div>
+                    <button onClick={() => removeFromCart(item.cartId)} className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="p-8 bg-black/50 border-t border-white/10 mt-auto">
+              <div className="flex justify-between items-center mb-6">
+                <span className="text-gray-400">總計金額</span>
+                <span className="text-3xl font-black text-yellow-500">NT$ {cart.reduce((sum, item) => sum + item.price, 0).toLocaleString()}</span>
+              </div>
+              <button disabled={cart.length === 0} className="w-full bg-gradient-to-r from-yellow-600 to-yellow-400 text-black hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed py-4 rounded-xl font-black text-lg transition-all shadow-lg hover:shadow-yellow-500/20 hover:scale-[1.02]">
+                結帳，解除封印！
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 主要內容區 */}
+      <main className="pt-24 min-h-[calc(100vh-400px)]">
+        {renderContent()}
+      </main>
+
+      {/* 底部資訊 */}
+      <footer className="bg-black border-t border-white/10 pt-20 pb-10">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+          <div className="col-span-1 md:col-span-2">
+            <div className="flex items-center gap-4 mb-6 cursor-pointer" onClick={() => setCurrentPage('home')}>
+              <img src="https://i.postimg.cc/1tX4HVmJ/Chat-GPT-Image-2026nian4yue29ri-xia-wu11-18-56.png" alt="Logo" className="h-12 drop-shadow-[0_0_8px_rgba(255,215,0,0.3)]" />
+              <span className="text-xl font-black tracking-widest text-white">曜鈦精密科技</span>
+            </div>
+            <p className="text-gray-500 max-w-sm leading-relaxed">
+              注入賽道靈魂，解鎖動力封印。<br/>我們不只製造零件，我們為您淬鍊神級外掛！
+            </p>
+          </div>
+          <div>
+            <h4 className="text-yellow-500 font-bold mb-6 tracking-widest">技術支援中心</h4>
+            <ul className="space-y-4 text-gray-400 text-sm">
+              <li className="flex items-center gap-2"><Phone size={16}/> Line ID: <span className="text-white font-mono">a0980999557</span></li>
+              <li className="flex items-center gap-2"><Mail size={16}/> <span className="text-white">yaotitascand@gmail.com</span></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-yellow-500 font-bold mb-6 tracking-widest">快捷服務</h4>
+            <ul className="space-y-4 text-gray-400 text-sm">
+              <li className="hover:text-yellow-500 cursor-pointer transition-colors" onClick={() => {setCurrentPage('contact'); window.scrollTo(0,0);}}>聯絡我們</li>
+              <li className="hover:text-yellow-500 cursor-pointer transition-colors" onClick={() => { isAdminMode ? setIsAdminMode(false) : setShowLoginModal(true); }}>
+                {isAdminMode ? '登出總裁後台' : '管理員專屬登入'}
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="text-center text-gray-600 text-xs border-t border-white/5 pt-10 px-6">
+          © 2026 曜鈦精密科技 (YAO-TI PRECISION). 降維打擊，顛覆極限. All Rights Reserved.
+        </div>
+      </footer>
+    </div>
+  );
+
+  function HomeSection() {
+    return (
+      <section className="relative overflow-hidden animate-in fade-in duration-700">
+        <div className="max-w-7xl mx-auto px-6 py-24 md:py-32 flex flex-col items-center text-center">
+          <div className="inline-flex items-center gap-2 px-5 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded-full text-xs font-bold text-yellow-500 mb-8 tracking-widest">
+            <Zap size={16} className="animate-pulse" /> 賽道級黑科技全面釋放
+          </div>
+          
+          <img 
+            src="https://i.postimg.cc/1tX4HVmJ/Chat-GPT-Image-2026nian4yue29ri-xia-wu11-18-56.png" 
+            alt="曜鈦精密科技 Logo" 
+            className="h-32 md:h-48 mb-8 object-contain drop-shadow-[0_0_20px_rgba(255,215,0,0.4)] animate-in zoom-in duration-700"
+          />
+
+          <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-8 leading-[1.1] text-white">
+            動力解封 <br className="hidden md:block"/>
+            <span className="bg-gradient-to-r from-yellow-500 to-yellow-200 bg-clip-text text-transparent">顛覆業界的極致效能</span>
+          </h1>
+          <p className="text-lg md:text-xl text-gray-400 max-w-2xl mb-12 leading-relaxed px-4 font-light">
+            明明比誰都渴望速度，卻總是受限於原廠封印？<br/>
+            換上曜鈦精密，你的座駕就是公路上的<strong className="text-yellow-500 font-bold">神級外掛</strong>。榨出每一匹馬力，實現暴力美學的極致降維打擊！
+          </p>
+          <div className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto px-6">
+            <button 
+              onClick={() => {setCurrentPage('products'); window.scrollTo(0,0);}}
+              className="w-full sm:w-auto px-10 py-5 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black font-black text-lg rounded-full transition-all hover:scale-105 flex items-center justify-center gap-2 shadow-xl shadow-yellow-500/20"
+            >
+              解鎖神裝清單 <ChevronRight size={20} className="font-black" />
+            </button>
+          </div>
+        </div>
+
+        {/* 特色亮點 */}
+        <div className="max-w-7xl mx-auto px-6 pb-32 grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+          {[
+            { icon: <Cpu size={32} />, title: '精密暴力美學', desc: 'CNC五軸聯動加工，每一道切削都是為了極致輕量與無損強度的完美平衡。' },
+            { icon: <ShieldCheck size={32} />, title: '狂暴升級用料', desc: '拒絕妥協。全面採用頂規鍛造等級合金，讓對手只能看你的車尾燈。' },
+            { icon: <TrendingUp size={32} />, title: '動力瘋狂榨取', desc: '透過專利角度與力學設計，從起步到尾速，全面解除引擎動力封印。' },
+          ].map((item, idx) => (
+            <div key={idx} className="p-10 bg-white/5 backdrop-blur-sm border border-white/10 rounded-[2rem] hover:border-yellow-500/50 hover:-translate-y-2 transition-all duration-300 group">
+              <div className="w-16 h-16 bg-yellow-500/10 text-yellow-500 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-yellow-500 group-hover:text-black transition-colors duration-300">
+                {item.icon}
+              </div>
+              <h3 className="text-xl font-black mb-4 tracking-wide text-white">{item.title}</h3>
+              <p className="text-gray-400 leading-relaxed font-light">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  function ProductsSection() {
+    const [selectedCategory, setSelectedCategory] = useState('全部');
+
+    const filteredProducts = selectedCategory === '全部' 
+      ? products 
+      : products.filter(p => p.category === selectedCategory);
+
+    return (
+      <section className="max-w-7xl mx-auto px-6 py-20 animate-in fade-in">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div>
+            <h2 className="text-4xl md:text-5xl font-black mb-4 tracking-wider">神級改裝品清單</h2>
+            <p className="text-gray-500 text-lg">武裝你的愛車，實現降維打擊的絕對優勢。</p>
+          </div>
+          {isAdminMode ? (
+            <div className="flex items-center gap-3">
+              <span className="text-yellow-500 font-bold bg-yellow-500/10 px-4 py-2 rounded-full flex items-center gap-2">
+                <Settings size={18} className="animate-spin-slow"/> 總裁後台模式已啟動
+              </span>
+            </div>
+          ) : null}
+        </div>
+
+        {/* 總裁專屬管理介面 - 分類與產品 */}
+        {isAdminMode && (
+          <div className="mb-16 space-y-8 animate-in zoom-in-95 duration-300">
+            {/* 營收統計面板 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-gradient-to-br from-neutral-900 to-black p-8 rounded-3xl border border-yellow-500/30 flex items-center gap-6 shadow-xl">
+                <div className="p-4 bg-yellow-500/10 text-yellow-500 rounded-2xl"><BarChart3 size={32}/></div>
+                <div>
+                  <p className="text-gray-400 font-bold mb-1 tracking-widest">本月累積營收</p>
+                  <p className="text-4xl font-black text-white">NT$ {stats.currentMonthRevenue.toLocaleString()}</p>
+                </div>
+              </div>
+              <div className="bg-gradient-to-br from-neutral-900 to-black p-8 rounded-3xl border border-yellow-500/30 flex items-center gap-6 shadow-xl">
+                <div className="p-4 bg-yellow-500/10 text-yellow-500 rounded-2xl"><TrendingUp size={32}/></div>
+                <div>
+                  <p className="text-gray-400 font-bold mb-1 tracking-widest">年度總計營收</p>
+                  <p className="text-4xl font-black text-white">NT$ {stats.yearlyRevenue.toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* 分類管理 */}
+            <div className="bg-neutral-900 p-8 rounded-3xl border border-white/10">
+              <h3 className="text-xl font-bold mb-6 text-white flex items-center gap-2"><Wrench className="text-yellow-500" /> 產品分類管理</h3>
+              <p className="text-sm text-gray-500 mb-4">在此新增或刪除前台的商品類別按鈕。</p>
+              <div className="flex flex-wrap gap-4 items-center">
+                {categories.map(cat => (
+                  <span key={cat} className="flex items-center gap-2 bg-black px-4 py-2 rounded-full border border-white/20 text-yellow-500 font-bold">
+                    {cat} 
+                    <button onClick={() => removeCategory(cat)} className="text-red-500 hover:text-red-400 ml-2" title="刪除此分類"><X size={16}/></button>
+                  </span>
+                ))}
+                <div className="flex items-center gap-2 ml-4">
+                  <input 
+                    type="text" 
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    placeholder="輸入新分類名稱"
+                    className="bg-black border border-yellow-500/50 rounded-xl px-4 py-2 outline-none focus:border-yellow-500 text-white text-sm w-40"
+                  />
+                  <button onClick={addCategory} className="p-2 bg-yellow-600 hover:bg-yellow-500 text-black rounded-xl font-bold flex items-center gap-1"><Plus size={18}/> 新增</button>
+                </div>
+              </div>
+            </div>
+
+            {/* 產品新增/編輯區塊 */}
+            <div className="p-8 md:p-10 bg-neutral-900 border border-yellow-500/50 rounded-3xl shadow-2xl">
+              <h3 className="text-2xl font-black mb-8 flex items-center gap-3 text-yellow-500">
+                {isEditing ? <Edit3 size={28} /> : <PlusCircle size={28} />}
+                {isEditing ? '編輯產品資訊' : '上架新神級武裝'}
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-400">產品名稱</label>
+                  <input type="text" value={newProduct.name} onChange={(e) => setNewProduct({...newProduct, name: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-yellow-500 outline-none" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-400">價格 (NTD)</label>
+                  <input type="number" value={newProduct.price} onChange={(e) => setNewProduct({...newProduct, price: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-yellow-500 outline-none" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-400">適用機種</label>
+                  <input type="text" value={newProduct.model} onChange={(e) => setNewProduct({...newProduct, model: e.target.value})} placeholder="例如: 勁戰六代" className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-yellow-500 outline-none" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-400">產品分類</label>
+                  <select value={newProduct.category} onChange={(e) => setNewProduct({...newProduct, category: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-yellow-500 outline-none appearance-none">
+                    {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-400">庫存數量</label>
+                  <input type="number" value={newProduct.stock} onChange={(e) => setNewProduct({...newProduct, stock: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-yellow-500 outline-none" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-400">上傳商品照片</label>
+                  <div className="relative h-[50px]">
+                    <input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full" />
+                    <div className={`w-full h-full bg-black border ${newProduct.image ? 'border-yellow-500 text-yellow-500' : 'border-white/10 text-gray-400'} rounded-xl px-4 flex items-center justify-between`}>
+                      <span className="truncate text-sm">{newProduct.image ? '✓ 已上傳' : '點擊選取圖檔'}</span>
+                      <Camera size={18} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {newProduct.image && (
+                <img src={newProduct.image} alt="預覽" className="w-32 h-32 object-cover rounded-xl border border-white/20 mb-6" />
+              )}
+
+              <div className="flex gap-4 mt-8">
+                {isEditing && (
+                  <button onClick={resetForm} className="px-8 py-4 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-all">
+                    取消編輯
+                  </button>
+                )}
+                <button 
+                  onClick={saveProduct}
+                  className="flex-1 py-4 bg-yellow-600 text-black font-black text-lg rounded-xl hover:bg-yellow-500 transition-all shadow-lg flex justify-center items-center gap-2"
+                >
+                  {isEditing ? <><Edit3 size={20}/> 儲存修改內容</> : <><Plus size={20}/> 確認上架神裝</>}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 分類標籤列 (前台顯示) */}
+        <div className="flex flex-wrap gap-3 mb-10">
+          <button 
+            onClick={() => setSelectedCategory('全部')}
+            className={`px-5 py-2 rounded-full font-bold transition-all border ${selectedCategory === '全部' ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-transparent text-gray-400 border-white/20 hover:border-yellow-500 hover:text-white'}`}
+          >
+            全部武裝
+          </button>
+          {categories.map(cat => (
+            <button 
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-5 py-2 rounded-full font-bold transition-all border ${selectedCategory === cat ? 'bg-yellow-500 text-black border-yellow-500' : 'bg-transparent text-gray-400 border-white/20 hover:border-yellow-500 hover:text-white'}`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* 產品展示網格 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredProducts.map((product, index) => (
+            <div key={product.id} className="group relative bg-neutral-900 border border-white/10 rounded-[2rem] overflow-hidden hover:border-yellow-500/50 hover:shadow-2xl hover:shadow-yellow-500/10 transition-all duration-500 flex flex-col h-full animate-in fade-in" style={{ animationDelay: `${index * 50}ms` }}>
+              <div className="aspect-[4/3] overflow-hidden relative bg-black">
+                <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 group-hover:opacity-70 transition-all duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                  {product.stock > 0 ? (
+                    <button onClick={() => addToCart(product)} className="w-full py-4 bg-yellow-500 text-black font-black text-lg rounded-xl flex items-center justify-center gap-2 hover:bg-yellow-400 transition-colors transform translate-y-4 group-hover:translate-y-0 duration-300">
+                      <ShoppingBag size={20} /> 解鎖加入購物車
+                    </button>
+                  ) : (
+                    <button onClick={() => setNotifyProduct(product)} className="w-full py-4 bg-red-600 text-white font-black text-lg rounded-xl flex items-center justify-center gap-2 hover:bg-red-500 transition-colors transform translate-y-4 group-hover:translate-y-0 duration-300 shadow-[0_0_15px_rgba(220,38,38,0.5)]">
+                      <Bell size={20} /> 缺貨中 - 設定到貨通知
+                    </button>
+                  )}
+                </div>
+                {/* 庫存狀態標籤 */}
+                {product.stock === 0 && (
+                  <div className="absolute top-4 right-4 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse shadow-lg">
+                    HOT 完售缺貨
+                  </div>
+                )}
+                <div className="absolute top-4 left-4">
+                  <span className="px-3 py-1 bg-black/80 backdrop-blur-md border border-white/20 rounded-full text-xs font-bold text-yellow-500 uppercase">
+                    {product.category}
+                  </span>
+                </div>
+              </div>
+              <div className="p-8 flex-grow flex flex-col bg-gradient-to-b from-transparent to-black/80">
+                <h3 className="font-bold text-xl mb-2 text-white group-hover:text-yellow-500 transition-colors line-clamp-2">{product.name}</h3>
+                <div className="text-gray-400 text-sm mb-4 bg-white/5 inline-block px-3 py-1 rounded-lg w-fit border border-white/5">
+                  <span className="font-bold text-yellow-500/80">適配機種：</span>{product.model}
+                </div>
+                
+                <div className="mt-auto flex justify-between items-end">
+                  <p className="text-yellow-500 font-mono text-2xl font-black tracking-tight">
+                    NT$ {product.price.toLocaleString()}
+                  </p>
+                  {isAdminMode && (
+                    <div className="text-right">
+                      <p className="text-xs text-gray-500 mb-1">庫存: {product.stock} | 銷量: {product.sales}</p>
+                    </div>
+                  )}
+                </div>
+
+                {isAdminMode && (
+                  <div className="flex gap-2 mt-6 pt-4 border-t border-white/10">
+                    <button onClick={() => startEditProduct(product)} className="flex-1 py-2 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg text-sm font-bold transition-colors flex justify-center items-center gap-1">
+                      <Edit3 size={16}/> 編輯
+                    </button>
+                    <button onClick={() => setProducts(products.filter(p => p.id !== product.id))} className="flex-1 py-2 bg-red-600/20 text-red-500 hover:bg-red-600 hover:text-white rounded-lg text-sm font-bold transition-colors flex justify-center items-center gap-1">
+                      <Trash2 size={16}/> 刪除
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  function BrandSection() {
+    return (
+      <div className="max-w-6xl mx-auto px-6 py-24 animate-in fade-in">
+        <div className="mb-16 text-center md:text-left">
+          <h2 className="text-5xl font-black mb-6 border-l-8 border-yellow-500 pl-6 text-white tracking-widest">霸主降臨｜品牌起源</h2>
+          <p className="text-xl text-yellow-500 pl-8 font-bold">注入賽道靈魂，解鎖動力封印。</p>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="space-y-8 text-gray-300 leading-loose text-lg font-light">
+            <p className="first-letter:text-7xl first-letter:font-black first-letter:text-yellow-500 first-letter:mr-3 first-letter:float-left">
+              曜鈦精密科技，為顛覆而生。我們看過太多騎士受限於原廠的保守設定，那種無法完全釋放的憋屈感，我們懂。所以我們決定親自操刀，打破這層束縛。
+            </p>
+            <p>
+              「妥協，從不在我們的字典裡。」我們不是在做一般的替換零件，我們是在打造「神級外掛」。從逆向工程精準掃描，到 CNC 航太級切削，每一個偷輕孔位、每一道精密曲面，都是為了解除封印，壓榨出引擎潛藏的每一匹馬力。
+            </p>
+            <p className="font-bold text-white border-l-2 border-yellow-500 pl-4 bg-white/5 py-4 px-6 rounded-r-2xl border-y border-r border-white/5 shadow-inner">
+              在曜鈦，極速不是夢想，而是透過精密科學與極致工藝，實實在在賦予你的降維打擊能力。武裝你的愛車，讓對手在後照鏡裡漸漸變小。
+            </p>
+          </div>
+          <div className="relative group">
+            <div className="aspect-[4/5] md:aspect-square bg-neutral-900 rounded-[3rem] overflow-hidden relative border-2 border-yellow-500/20 shadow-[0_0_30px_rgba(255,215,0,0.1)]">
+               <img src="https://images.unsplash.com/photo-1591702548275-348546daaec3?auto=format&fit=crop&q=80&w=800" alt="Workplace" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100" />
+               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+               <img src="https://i.postimg.cc/1tX4HVmJ/Chat-GPT-Image-2026nian4yue29ri-xia-wu11-18-56.png" className="absolute inset-0 m-auto w-1/2 opacity-30 drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]" alt="watermark" />
+            </div>
+            <div className="absolute -bottom-10 -right-4 md:-right-10 p-10 bg-gradient-to-br from-yellow-600 to-yellow-500 rounded-[2.5rem] shadow-2xl shadow-yellow-600/30 transform group-hover:-translate-y-4 transition-transform duration-500">
+              <p className="text-xl font-bold text-black mb-1">YAO-TI PRECISION</p>
+              <p className="text-4xl font-black text-black tracking-tighter">PERFORMANCE</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function TechSection() {
+    const techItems = [
+      { title: '狂暴凸輪性能躍進', desc: '重塑引擎呼吸節奏。獨家精算高角度凸輪軸幾何，突破原廠揚程封印，讓高轉速域的馬力如猛獸般源源不絕，榨乾最後一滴動能！', icon: <Zap size={36} /> },
+      { title: '神級缸頭氣道優化', desc: '氣流就是力量！導入超精密流體力學運算，完美擴充並拋光進排氣道。消除氣流亂流，實現零阻力進氣，油門一轉，瞬間感受狂暴推力！', icon: <TrendingUp size={36} /> },
+      { title: '賽道級極限耐久', desc: '動力再強，也要扛得住！採用高強度材質與極致表面硬化處理。在極端高溫與極限轉速的雙重蹂躪下，依然維持 100% 巔峰輸出，拒絕熱衰，耐力無極限！', icon: <ShieldCheck size={36} /> },
+    ];
+    return (
+      <div className="max-w-7xl mx-auto px-6 py-24 animate-in fade-in">
+        <div className="text-center mb-20">
+          <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-widest text-white">黑科技支持</h2>
+          <p className="text-yellow-500 font-bold text-xl max-w-2xl mx-auto">暴力美學背後的純粹科學。解析曜鈦精密如何將黑科技具現化，顛覆你對效能的認知。</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {techItems.map((item, i) => (
+            <div key={i} className="p-10 bg-neutral-900 border border-white/10 rounded-[2.5rem] hover:border-yellow-500 hover:shadow-[0_0_30px_rgba(255,215,0,0.15)] transition-all duration-300 group relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 rounded-full blur-[50px] group-hover:bg-yellow-500/20 transition-colors" />
+              <div className="w-20 h-20 bg-black border border-yellow-500/30 text-yellow-500 rounded-2xl flex items-center justify-center mb-8 shadow-inner group-hover:bg-yellow-500 group-hover:text-black transition-colors duration-300 relative z-10">
+                {item.icon}
+              </div>
+              <h3 className="text-2xl font-black mb-4 text-white relative z-10 tracking-wide">{item.title}</h3>
+              <p className="text-gray-400 leading-relaxed text-lg font-light relative z-10">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  function ContactSection() {
+    return (
+      <div className="max-w-7xl mx-auto px-6 py-24 animate-in fade-in">
+        <div className="bg-neutral-900 border border-white/10 rounded-[3rem] p-10 md:p-16 relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-16 shadow-2xl">
+          
+          <div className="relative z-10 max-w-xl w-full">
+            <h2 className="text-5xl font-black text-white mb-8 tracking-widest">與我們聯繫</h2>
+            <p className="text-gray-400 text-xl mb-12 leading-relaxed font-light">
+              準備好解鎖愛車的封印了嗎？<br/>
+              無論是神級武裝諮詢、經銷合作，填寫表單，曜鈦團隊將盡速回覆您。
+            </p>
+            <div className="space-y-6">
+              <div className="flex items-center gap-6 text-white text-lg bg-black p-5 rounded-2xl border border-white/10 shadow-inner">
+                <Phone size={28} className="text-yellow-500" /> 
+                <div>
+                  <p className="text-sm text-gray-500 font-bold mb-1">技術支援 Line ID</p>
+                  <p className="font-mono text-xl tracking-wider font-bold">a0980999557</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-6 text-white text-lg bg-black p-5 rounded-2xl border border-white/10 shadow-inner">
+                <Mail size={28} className="text-yellow-500" /> 
+                <div>
+                  <p className="text-sm text-gray-500 font-bold mb-1">官方聯絡信箱</p>
+                  <p className="font-mono text-lg font-bold">yaotitascand@gmail.com</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative z-10 w-full max-w-md bg-black p-10 rounded-[2.5rem] shadow-[0_0_40px_rgba(0,0,0,0.8)] border border-yellow-500/30">
+            <h3 className="text-2xl font-black text-white mb-8 text-center text-yellow-500 tracking-wider">線上諮詢表單</h3>
+            <form onSubmit={handleContactSubmit} className="space-y-5">
+              <div>
+                <label className="block text-xs text-gray-400 mb-2 font-bold pl-2">您的姓名</label>
+                <input 
+                  required type="text" placeholder="請輸入姓名..." 
+                  value={contactForm.name} onChange={e => setContactForm({...contactForm, name: e.target.value})}
+                  className="w-full p-4 bg-[#1a1a1a] border border-yellow-500/40 rounded-xl outline-none text-white focus:bg-[#252525] focus:border-yellow-400 transition-all placeholder-gray-600 shadow-inner" 
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-2 font-bold pl-2">聯絡電話</label>
+                <input 
+                  required type="tel" placeholder="請輸入手機號碼..." 
+                  value={contactForm.phone} onChange={e => setContactForm({...contactForm, phone: e.target.value})}
+                  className="w-full p-4 bg-[#1a1a1a] border border-yellow-500/40 rounded-xl outline-none text-white focus:bg-[#252525] focus:border-yellow-400 transition-all placeholder-gray-600 shadow-inner" 
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-2 font-bold pl-2">電子郵件</label>
+                <input 
+                  required type="email" placeholder="請輸入 Email..." 
+                  value={contactForm.email} onChange={e => setContactForm({...contactForm, email: e.target.value})}
+                  className="w-full p-4 bg-[#1a1a1a] border border-yellow-500/40 rounded-xl outline-none text-white focus:bg-[#252525] focus:border-yellow-400 transition-all placeholder-gray-600 shadow-inner" 
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-2 font-bold pl-2">需求內容 / 預計改裝機種</label>
+                <textarea 
+                  required placeholder="請詳細敘述您的需求..." rows="4" 
+                  value={contactForm.message} onChange={e => setContactForm({...contactForm, message: e.target.value})}
+                  className="w-full p-4 bg-[#1a1a1a] border border-yellow-500/40 rounded-xl outline-none text-white focus:bg-[#252525] focus:border-yellow-400 transition-all placeholder-gray-600 resize-none shadow-inner"
+                ></textarea>
+              </div>
+              <button type="submit" className="w-full py-5 bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-black text-lg rounded-xl hover:brightness-110 transition-all shadow-[0_0_20px_rgba(255,215,0,0.4)] hover:shadow-[0_0_30px_rgba(255,215,0,0.6)] mt-4 tracking-widest">
+                發送需求至曜鈦
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+};
+
+export default App;
