@@ -4,28 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YAO-TITAN 曜鈦精密科技 | 注入賽道靈魂，解鎖動力封印</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.min.js"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700;900&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #0a0a0a; color: #f3f4f6; }
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
-        /* 針對動畫優化 */
-        .animate-in { animation: fadeIn 0.5s ease-out forwards; }
+        .animate-in { animation: fadeIn 0.6s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* 避免 Babel 加載時閃爍 */
+        #root:empty::before { content: '曜鈦系統啟動中...'; color: #ca8a04; display: flex; justify-content: center; align-items: center; height: 100vh; font-weight: bold; letter-spacing: 0.2em; }
     </style>
 </head>
-<body class="bg-[#0a0a0a] text-gray-100">
+<body>
     <div id="root"></div>
 
     <script type="text/babel">
-        // 2. 解構 React 與 Lucide 功能 (取代 import)
+        // 3. 把原本的 import 換成瀏覽器能讀取的格式
         const { useState, useEffect, useMemo } = React;
         const { 
           ShoppingBag, Settings, Wrench, Mail, ChevronRight, 
@@ -33,7 +32,7 @@
           Camera, TrendingUp, Eye, EyeOff, Edit3, BarChart3, Bell, Phone 
         } = LucideReact;
 
-        // --- 預設分類與產品資料 ---
+        // --- 預設資料設定 ---
         const INITIAL_CATEGORIES = ['凸輪軸', '鍛造活塞', '前普利盤', '傳動離合器'];
         const INITIAL_PRODUCTS = [
           { id: 1, name: '賽道狂飆級 高角度凸輪軸', price: 12800, image: 'https://images.unsplash.com/photo-1558981403-c5f11bbdba27?auto=format&fit=crop&q=80&w=800', category: '凸輪軸', model: '勁戰六代 / 水冷BWS', stock: 15, sales: 128 },
@@ -42,6 +41,7 @@
           { id: 4, name: '暴力咬合 傳動離合器總成', price: 5800, image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&q=80&w=800', category: '傳動離合器', model: '全車系通用', stock: 5, sales: 240 }
         ];
 
+        // --- 主要 App 元件 ---
         const App = () => {
           const [currentPage, setCurrentPage] = useState('home');
           const [categories, setCategories] = useState(INITIAL_CATEGORIES);
@@ -93,7 +93,7 @@
           };
 
           const saveProduct = () => {
-            if (newProduct.name && newProduct.price && newProduct.image && newProduct.model) {
+            if (newProduct.name && newProduct.price && (newProduct.image || isEditing) && newProduct.model) {
               if (isEditing) {
                 setProducts(products.map(p => p.id === newProduct.id ? { ...newProduct, price: parseInt(newProduct.price), stock: parseInt(newProduct.stock) } : p));
               } else {
@@ -105,143 +105,187 @@
             }
           };
 
+          const startEditProduct = (product) => {
+            setNewProduct({ ...product });
+            setIsEditing(true);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          };
+
           const resetForm = () => {
             setNewProduct({ id: null, name: '', price: '', image: null, category: categories[0], model: '', stock: 10 });
             setIsEditing(false);
           };
 
-          const NavItem = ({ id, label }) => (
-            <button 
-              onClick={() => { setCurrentPage(id); setIsMenuOpen(false); window.scrollTo(0, 0); }}
-              className={`px-4 py-2 text-sm md:text-base uppercase tracking-widest transition-all ${currentPage === id ? 'text-[#FFD700] font-bold' : 'text-gray-400 hover:text-white'}`}
-            >
-              {label}
-            </button>
-          );
+          const handleContactSubmit = (e) => {
+            e.preventDefault();
+            const subject = encodeURIComponent('曜鈦精密科技 官網線上詢問');
+            const body = encodeURIComponent(`姓名: ${contactForm.name}\n電話: ${contactForm.phone}\nEmail: ${contactForm.email}\n\n需求內容:\n${contactForm.message}`);
+            window.location.href = `mailto:yaotitascand@gmail.com?subject=${subject}&body=${body}`;
+          };
+
+          const handleNotifySubmit = (e) => {
+            e.preventDefault();
+            alert('已為您設定系統自動通知！補貨時將發送 Email 通知您。');
+            setNotifyProduct(null);
+          };
 
           return (
-            <div className="min-h-screen bg-[#0a0a0a] text-gray-100 font-sans selection:bg-[#FFD700] selection:text-black pb-safe">
+            <div className="min-h-screen pb-safe">
               {/* 導航欄 */}
-              <nav className="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
-                <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
-                  <div className="flex items-center gap-4 cursor-pointer group" onClick={() => setCurrentPage('home')}>
-                    <img src="https://i.postimg.cc/1tX4HVmJ/Chat-GPT-Image-2026nian4yue29ri-xia-wu11-18-56.png" className="h-14 object-contain drop-shadow-[0_0_8px_rgba(255,215,0,0.5)] group-hover:scale-105 transition-transform" />
-                    <div className="hidden sm:block">
-                      <span className="text-2xl font-black tracking-widest bg-gradient-to-r from-yellow-500 to-yellow-200 bg-clip-text text-transparent">曜鈦精密科技</span>
-                    </div>
-                  </div>
-
-                  <div className="hidden lg:flex items-center space-x-1">
-                    <NavItem id="brand" label="霸主起源" />
-                    <NavItem id="products" label="神級改裝品" />
-                    <NavItem id="tech" label="黑科技支持" />
-                    <NavItem id="contact" label="聯絡我們" />
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <button onClick={() => setIsCartOpen(true)} className="relative p-2 text-yellow-500"><ShoppingBag size={24} />{cart.length > 0 && <span className="absolute top-0 right-0 bg-red-600 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">{cart.length}</span>}</button>
-                    <button className="lg:hidden p-2 text-yellow-500" onClick={() => setIsMenuOpen(!isMenuOpen)}>{isMenuOpen ? <X size={28} /> : <Menu size={28} />}</button>
-                  </div>
+              <nav className="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-md border-b border-white/10 h-24 flex items-center justify-between px-6">
+                <div className="flex items-center gap-4 cursor-pointer" onClick={() => setCurrentPage('home')}>
+                  <img src="https://i.postimg.cc/1tX4HVmJ/Chat-GPT-Image-2026nian4yue29ri-xia-wu11-18-56.png" className="h-14 drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]" />
+                  <span className="text-xl font-black tracking-widest text-white hidden sm:block uppercase">曜鈦精密科技</span>
+                </div>
+                <div className="hidden lg:flex space-x-2">
+                  {['brand', 'products', 'tech', 'contact'].map(p => (
+                    <button key={p} onClick={() => setCurrentPage(p)} className={`px-4 py-2 text-sm uppercase tracking-widest ${currentPage === p ? 'text-yellow-500 font-bold' : 'text-gray-400 hover:text-white'}`}>
+                      {p === 'brand' ? '霸主起源' : p === 'products' ? '神級改裝品' : p === 'tech' ? '黑科技支持' : '聯絡我們'}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex items-center gap-4">
+                  <button onClick={() => setIsCartOpen(true)} className="relative p-2 text-yellow-500">
+                    <ShoppingBag size={24} />
+                    {cart.length > 0 && <span className="absolute top-0 right-0 bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full border-2 border-black">{cart.length}</span>}
+                  </button>
+                  <button className="lg:hidden p-2 text-yellow-500" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                    {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+                  </button>
                 </div>
               </nav>
 
-              <main className="pt-24 min-h-[calc(100vh-400px)] text-center">
-                {currentPage === 'home' && <HomeSection setCurrentPage={setCurrentPage} />}
-                {currentPage === 'products' && (
-                    <ProductsSection 
-                        products={products} 
-                        isAdminMode={isAdminMode} 
-                        stats={stats} 
-                        categories={categories}
-                        newProduct={newProduct}
-                        setNewProduct={setNewProduct}
-                        saveProduct={saveProduct}
-                        addToCart={addToCart}
-                        setNotifyProduct={setNotifyProduct}
-                    />
+              {/* 主要頁面渲染 */}
+              <main className="pt-24 min-h-screen">
+                {currentPage === 'home' && (
+                  <section className="max-w-7xl mx-auto px-6 py-20 text-center animate-in">
+                    <div className="inline-flex items-center gap-2 px-5 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded-full text-xs font-bold text-yellow-500 mb-8 uppercase tracking-widest">
+                       <Zap size={16} /> 賽道級黑科技全面釋放
+                    </div>
+                    <img src="https://i.postimg.cc/1tX4HVmJ/Chat-GPT-Image-2026nian4yue29ri-xia-wu11-18-56.png" className="h-48 mx-auto mb-8 drop-shadow-2xl" />
+                    <h1 className="text-5xl md:text-8xl font-black mb-8 leading-tight">動力解封<br /><span className="text-yellow-500 italic">顛覆業界的極致效能</span></h1>
+                    <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-12">換上曜鈦精密，您的座駕就是公路上的神級外掛！</p>
+                    <button onClick={() => setCurrentPage('products')} className="px-12 py-5 bg-yellow-600 text-black font-black text-xl rounded-full shadow-xl hover:scale-105 transition-all">解鎖神裝清單</button>
+                  </section>
                 )}
-                {currentPage === 'brand' && <div className="py-20 text-4xl font-bold">霸主起源內容 (載入中...)</div>}
-                {currentPage === 'tech' && <div className="py-20 text-4xl font-bold text-yellow-500">黑科技解析 (載入中...)</div>}
-                {currentPage === 'contact' && <div className="py-20 text-4xl font-bold">聯絡我們 (載入中...)</div>}
+
+                {currentPage === 'products' && (
+                  <section className="max-w-7xl mx-auto px-6 py-20 animate-in text-left">
+                    <h2 className="text-5xl font-black mb-12">神級改裝品清單</h2>
+                    
+                    {isAdminMode && (
+                        <div className="mb-16 space-y-8 p-8 border border-yellow-500/30 rounded-3xl bg-neutral-900/50">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="p-6 bg-black/50 rounded-2xl border border-white/10">
+                                    <p className="text-gray-500 text-sm">本月累積營收</p>
+                                    <p className="text-4xl font-black text-yellow-500">NT$ {stats.currentMonthRevenue.toLocaleString()}</p>
+                                </div>
+                                <div className="p-6 bg-black/50 rounded-2xl border border-white/10">
+                                    <p className="text-gray-500 text-sm">年度總計營收</p>
+                                    <p className="text-4xl font-black text-yellow-500">NT$ {stats.yearlyRevenue.toLocaleString()}</p>
+                                </div>
+                            </div>
+                            <div className="bg-black/30 p-6 rounded-2xl">
+                                <h3 className="font-bold text-yellow-500 mb-4 flex items-center gap-2"><Edit3 size={18}/> {isEditing ? '編輯產品' : '新增產品'}</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <input placeholder="名稱" value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} className="bg-black p-3 border rounded-xl" />
+                                    <input placeholder="價格" type="number" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} className="bg-black p-3 border rounded-xl" />
+                                    <input placeholder="機種" value={newProduct.model} onChange={e => setNewProduct({...newProduct, model: e.target.value})} className="bg-black p-3 border rounded-xl" />
+                                </div>
+                                <button onClick={saveProduct} className="mt-4 w-full py-4 bg-yellow-600 text-black font-black rounded-xl">執行更新</button>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                      {products.map(p => (
+                        <div key={p.id} className="bg-neutral-900 border border-white/10 rounded-[2.5rem] overflow-hidden hover:border-yellow-500/50 transition-all flex flex-col h-full">
+                          <img src={p.image} className="w-full h-56 object-cover" />
+                          <div className="p-8 flex-grow">
+                            <h3 className="font-bold text-xl mb-4">{p.name}</h3>
+                            <p className="text-gray-400 text-sm mb-6 font-medium tracking-widest">適配機種：{p.model}</p>
+                            <div className="flex justify-between items-end mt-auto">
+                                <p className="text-2xl font-black text-yellow-500">NT$ {p.price.toLocaleString()}</p>
+                                <button onClick={() => p.stock > 0 ? addToCart(p) : setNotifyProduct(p)} className={`px-6 py-2 rounded-xl font-bold ${p.stock > 0 ? 'bg-white text-black' : 'bg-red-600 text-white'}`}>
+                                    {p.stock > 0 ? '加入' : '缺貨通知'}
+                                </button>
+                            </div>
+                            {isAdminMode && <button onClick={() => startEditProduct(p)} className="mt-4 text-xs text-gray-500 underline">編輯此項</button>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {currentPage === 'brand' && (
+                    <div className="py-40 text-center text-4xl font-black titan-gradient uppercase tracking-widest border-l-8 border-yellow-500 mx-10">
+                        霸主起源 探索中...
+                    </div>
+                )}
+                {currentPage === 'tech' && (
+                    <div className="py-40 text-center text-4xl font-black titan-gradient uppercase tracking-widest border-l-8 border-yellow-500 mx-10">
+                        黑科技 支持解析中...
+                    </div>
+                )}
+                {currentPage === 'contact' && (
+                    <section className="max-w-4xl mx-auto px-6 py-20 text-left">
+                        <h2 className="text-5xl font-black mb-12">與我們聯繫</h2>
+                        <form onSubmit={handleContactSubmit} className="space-y-6 bg-neutral-900 p-10 rounded-[2rem]">
+                            <input required placeholder="姓名" value={contactForm.name} onChange={e => setContactForm({...contactForm, name: e.target.value})} className="w-full bg-black p-4 border rounded-xl" />
+                            <input required placeholder="Email" value={contactForm.email} onChange={e => setContactForm({...contactForm, email: e.target.value})} className="w-full bg-black p-4 border rounded-xl" />
+                            <textarea required placeholder="需求內容" value={contactForm.message} onChange={e => setContactForm({...contactForm, message: e.target.value})} rows="5" className="w-full bg-black p-4 border rounded-xl" />
+                            <button className="w-full py-5 bg-yellow-600 text-black font-black rounded-xl">發送需求至曜鈦</button>
+                        </form>
+                    </section>
+                )}
               </main>
 
-              {/* 登入 Modal */}
-              {showLoginModal && (
-                <div className="fixed inset-0 z-[110] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-                  <div className="bg-neutral-900 border border-yellow-500/30 p-8 rounded-2xl w-full max-w-sm">
-                    <h3 className="text-2xl font-black mb-6 text-center text-yellow-500">總裁專屬後台登入</h3>
-                    <input type={showPassword ? "text" : "password"} value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} className="w-full bg-black border rounded-xl px-4 py-3 mb-6" placeholder="輸入密碼" />
-                    <button onClick={handleLogin} className="w-full py-3 bg-yellow-600 text-black font-black rounded-xl">登入解鎖</button>
-                    <button onClick={() => setShowLoginModal(false)} className="w-full mt-2 text-gray-500">取消</button>
-                  </div>
-                </div>
-              )}
-
-              {/* 購物車側欄 */}
+              {/* 彈窗與側欄 */}
               {isCartOpen && (
-                <div className="fixed inset-0 z-[100] bg-black/60 flex justify-end">
-                  <div className="w-full max-w-md bg-neutral-900 h-full p-8 border-l border-white/10 relative">
-                    <button onClick={() => setIsCartOpen(false)} className="absolute top-6 right-6"><X /></button>
-                    <h2 className="text-2xl font-bold mb-8 flex items-center gap-2"><ShoppingBag /> 購物車清單</h2>
-                    <div className="space-y-4">
-                        {cart.length === 0 ? <p>購物車目前空空如也</p> : cart.map(item => (
-                            <div key={item.cartId} className="flex justify-between bg-white/5 p-4 rounded-xl">
-                                <span>{item.name}</span>
-                                <span className="text-yellow-500">NT$ {item.price.toLocaleString()}</span>
+                <div className="fixed inset-0 z-[100] bg-black/80 flex justify-end">
+                    <div className="w-full max-w-md bg-neutral-900 h-full p-8 border-l border-yellow-600/20 flex flex-col">
+                        <div className="flex justify-between items-center mb-8">
+                            <h2 className="text-2xl font-bold flex items-center gap-2"><ShoppingBag /> 購物袋</h2>
+                            <button onClick={() => setIsCartOpen(false)}><X /></button>
+                        </div>
+                        <div className="flex-grow space-y-4">
+                            {cart.length === 0 ? <p className="text-gray-500 text-center py-20">袋內空空如也</p> : cart.map(item => (
+                                <div key={item.cartId} className="bg-black p-4 rounded-xl flex justify-between">
+                                    <span>{item.name}</span>
+                                    <span className="text-yellow-500">NT$ {item.price.toLocaleString()}</span>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="pt-8 border-t border-white/10">
+                            <div className="flex justify-between text-2xl font-black mb-6">
+                                <span>總計</span>
+                                <span>NT$ {cart.reduce((s, i) => s + i.price, 0).toLocaleString()}</span>
                             </div>
-                        ))}
+                            <button className="w-full py-4 bg-yellow-600 text-black font-black rounded-xl">前往結帳</button>
+                        </div>
                     </div>
-                  </div>
                 </div>
               )}
 
-              <footer className="bg-black py-10 mt-20 border-t border-white/10 text-center">
-                <p className="text-gray-500">© 2026 曜鈦精密科技. All Rights Reserved.</p>
-                <button onClick={() => setShowLoginModal(true)} className="mt-4 text-xs text-gray-700">管理員登入</button>
+              {showLoginModal && (
+                <div className="fixed inset-0 z-[110] bg-black/90 flex items-center justify-center p-4">
+                    <div className="bg-neutral-900 p-8 rounded-3xl border border-yellow-500/30 w-full max-w-sm">
+                        <h3 className="text-2xl font-black mb-6 text-yellow-500 text-center">總裁專屬登入</h3>
+                        <input type="password" value={adminPassword} onChange={e => setAdminPassword(e.target.value)} className="w-full bg-black p-4 border rounded-xl mb-6" placeholder="請輸入密碼" />
+                        <button onClick={handleLogin} className="w-full py-4 bg-yellow-600 text-black font-black rounded-xl">登入解鎖</button>
+                        <button onClick={() => setShowLoginModal(false)} className="w-full mt-4 text-gray-500">取消</button>
+                    </div>
+                </div>
+              )}
+
+              <footer className="bg-black py-20 border-t border-white/5 text-center">
+                  <p className="text-gray-600 text-xs tracking-widest uppercase">© 2026 YAO-TITAN PRECISION TECHNOLOGY</p>
+                  <button onClick={() => setShowLoginModal(true)} className="mt-6 text-yellow-900 font-bold italic opacity-30 hover:opacity-100">管理員登入系統</button>
               </footer>
             </div>
           );
         };
-
-        const HomeSection = ({ setCurrentPage }) => (
-          <section className="animate-in py-20">
-            <img src="https://i.postimg.cc/1tX4HVmJ/Chat-GPT-Image-2026nian4yue29ri-xia-wu11-18-56.png" className="h-48 mx-auto mb-8 drop-shadow-[0_0_20px_rgba(255,215,0,0.4)]" />
-            <h1 className="text-6xl font-black mb-8 leading-tight">動力解封<br /><span className="text-yellow-500">顛覆業界的極致效能</span></h1>
-            <button onClick={() => setCurrentPage('products')} className="px-10 py-5 bg-yellow-600 text-black font-black text-lg rounded-full">解鎖神裝清單</button>
-          </section>
-        );
-
-        const ProductsSection = (props) => (
-          <section className="max-w-7xl mx-auto px-6 py-20 text-left">
-            <h2 className="text-5xl font-black mb-12">神級改裝品清單</h2>
-            
-            {props.isAdminMode && (
-                <div className="grid grid-cols-2 gap-6 mb-12">
-                    <div className="bg-neutral-900 p-8 rounded-3xl border border-yellow-500/30">
-                        <p className="text-gray-400">本月累積營收</p>
-                        <p className="text-4xl font-black">NT$ {props.stats.currentMonthRevenue.toLocaleString()}</p>
-                    </div>
-                    <div className="bg-neutral-900 p-8 rounded-3xl border border-yellow-500/30">
-                        <p className="text-gray-400">年度總計營收</p>
-                        <p className="text-4xl font-black">NT$ {props.stats.yearlyRevenue.toLocaleString()}</p>
-                    </div>
-                </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {props.products.map(product => (
-                <div key={product.id} className="bg-neutral-900 rounded-[2rem] overflow-hidden border border-white/10 group hover:border-yellow-500/50 transition-all">
-                  <img src={product.image} className="w-full h-48 object-cover" />
-                  <div className="p-8">
-                    <h3 className="text-xl font-bold mb-2">{product.name}</h3>
-                    <p className="text-yellow-500 font-bold text-2xl mb-6">NT$ {product.price.toLocaleString()}</p>
-                    <button onClick={() => props.addToCart(product)} className="w-full py-4 bg-yellow-600 text-black font-black rounded-xl hover:bg-yellow-500">加入購物車</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        );
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
