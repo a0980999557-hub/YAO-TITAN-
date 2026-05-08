@@ -14,24 +14,29 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        // 1. 重要：這行是為了取代您的 import 語句
+        // --- 重點：這幾行取代了您原本最上面的 import 語句 ---
         const { useState, useEffect, useMemo } = React;
+        const { 
+            ShoppingBag, Settings, Wrench, Mail, ChevronRight, Plus, Trash2, 
+            Cpu, Zap, ShieldCheck, Menu, X, PlusCircle, Camera, TrendingUp, 
+            Eye, EyeOff, Edit3, BarChart3, Bell, Phone 
+        } = lucide;
 
-        // 2. 請在這裡貼上您原本那一整段長長的程式碼
-        // (請從 const INITIAL_CATEGORIES = ... 開始貼到最後)
+        // --- 2. 在下面這裡貼上您原本那一整段長長的程式碼 ---
+        // (請從 const INITIAL_CATEGORIES = ... 開始貼，直到最後)
         
         // --- 您的程式碼開始 ---
         
-        // (您的 INITIAL_CATEGORIES, INITIAL_PRODUCTS 等數據...)
-        // (您的 App 元件邏輯...)
+        // [在此處貼上您的程式碼]
         
         // --- 您的程式碼結束 ---
 
+        // 3. 最後這三行確保網頁能渲染出來
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
         
-        // 初始化圖示
-        lucide.createIcons();
+        // 啟動圖示
+        setTimeout(() => lucide.createIcons(), 500);
     </script>
 </body>
 </html>
