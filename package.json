@@ -1,0 +1,6 @@
+{
+  "name":"yao-titan-cms",
+  "private":true,
+  "version":"1.0.0",
+  "scripts":{"dev":"vercel dev"}
+}
