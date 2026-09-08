@@ -58,10 +58,10 @@
     ]
   },
   "development": {
-    "eyebrow": "ENGINE DEVELOPMENT",
-    "title": "動力開發",
-    "lead": "從需求出發，建立完整的開發流程。",
-    "body": "涵蓋引擎性能、凸輪軸、汽缸頭與相關零件開發，搭配測試與實車驗證，讓每一次修改都有依據。",
+    "eyebrow": "",
+    "title": "",
+    "lead": "",
+    "body": "",
     "steps": [
       "問題定義與需求分析",
       "零件設計與規格建立",
@@ -71,9 +71,9 @@
     ]
   },
   "testing": {
-    "eyebrow": "TESTING & DATA",
-    "title": "測試與數據",
-    "lead": "用數據確認每一次優化，而不是只靠感覺。",
+    "eyebrow": "",
+    "title": "",
+    "lead": "",
     "items": [
       {
         "title": "Dyno 測試",
@@ -115,7 +115,10 @@
       "desc": "透過馬力機進行性能測試，觀察引擎輸出與修改前後的差異。",
       "images": [
         "history/08.jpg",
-        "history/10.jpg"
+        "history/1788884245330-2207.jpg",
+        "history/1788884248066-LC-278.jpg",
+        "history/1788884250542----.jpg",
+        "history/1788884252918------.jpg"
       ]
     },
     {
@@ -189,7 +192,8 @@
     "images": [
       "history/16.jpg",
       "history/15.jpg"
-    ]
+    ],
+    "image": "history/16.jpg"
   },
   "contact": {
     "eyebrow": "TECHNICAL CONSULTING",
