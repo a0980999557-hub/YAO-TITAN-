@@ -1,0 +1,206 @@
+{
+  "site": {
+    "brand": "YAO TITAN",
+    "brandSub": "WE ENGINEER PERFORMANCE",
+    "eyebrow": "ENGINE PERFORMANCE DEVELOPMENT",
+    "heroTitle1": "發動機性能優化",
+    "heroTitle2": "零件耐用度提升",
+    "heroTitle3": "問題解決",
+    "heroCopy1": "從問題開始，找出原因",
+    "heroCopy2": "讓每一次優化都有依據",
+    "heroButton1": "查看動力開發",
+    "heroButton2": "查看測試與數據",
+    "heroImage": "history/04.jpg",
+    "footerLeft": "YAO TITAN｜曜鈦精密科技",
+    "footerRight": "ENGINE PERFORMANCE DEVELOPMENT"
+  },
+  "approach": {
+    "eyebrow": "OUR APPROACH",
+    "title1": "不是盲目追求馬力",
+    "title2": "而是從問題開始找答案",
+    "body": "從現象、數據與實車測試開始，找出真正影響性能與耐用度的原因，再透過零件設計、流量測試與實車驗證，建立有依據的優化方案。"
+  },
+  "heritage": {
+    "eyebrow": "FROM EXPERIENCE TO ENGINEERING",
+    "title1": "從賽場實戰開始",
+    "title2": "把經驗變成可以驗證的技術",
+    "body": "約 2005 年開始投入引擎改裝、性能提升、凸輪軸設計與汽缸頭開發，並透過繞圈賽與實車測試累積開發經驗。2026 年以 YAO TITAN 品牌延續這套從問題、測試到驗證的工程思維。"
+  },
+  "capabilities": {
+    "eyebrow": "CORE CAPABILITIES",
+    "title": "四大核心能力",
+    "range": "PERFORMANCE · OPTIMIZATION · DURABILITY · SOLUTIONS",
+    "items": [
+      {
+        "num": "01",
+        "en": "PERFORMANCE",
+        "title": "性能提升",
+        "body": "從進排氣、凸輪軸與引擎設定出發，尋找更有效率的性能提升方式。"
+      },
+      {
+        "num": "02",
+        "en": "OPTIMIZATION",
+        "title": "零件優化",
+        "body": "以實際使用需求與測試結果為依據，持續優化零件設計與匹配。"
+      },
+      {
+        "num": "03",
+        "en": "DURABILITY",
+        "title": "耐用度提升",
+        "body": "不只追求輸出，更重視零件負荷、工作條件與長期使用的可靠度。"
+      },
+      {
+        "num": "04",
+        "en": "SOLUTIONS",
+        "title": "問題解決",
+        "body": "從異常現象與測試數據找出原因，建立可以驗證與重複的解決方案。"
+      }
+    ]
+  },
+  "development": {
+    "eyebrow": "ENGINE DEVELOPMENT",
+    "title": "動力開發",
+    "lead": "從需求出發，建立完整的開發流程。",
+    "body": "涵蓋引擎性能、凸輪軸、汽缸頭與相關零件開發，搭配測試與實車驗證，讓每一次修改都有依據。",
+    "steps": [
+      "問題定義與需求分析",
+      "零件設計與規格建立",
+      "流量與性能測試",
+      "實車驗證與調校",
+      "數據整理與持續優化"
+    ]
+  },
+  "testing": {
+    "eyebrow": "TESTING & DATA",
+    "title": "測試與數據",
+    "lead": "用數據確認每一次優化，而不是只靠感覺。",
+    "items": [
+      {
+        "title": "Dyno 測試",
+        "desc": "透過馬力機觀察輸出、扭力與性能變化。",
+        "images": [
+          "history/08.jpg",
+          "history/10.jpg"
+        ]
+      },
+      {
+        "title": "性能測試",
+        "desc": "以實際測試結果比較修改前後的性能差異。",
+        "images": [
+          "history/09.jpg"
+        ]
+      },
+      {
+        "title": "汽缸頭流量測試",
+        "desc": "分析進排氣流量，作為汽缸頭開發與優化的重要依據。",
+        "images": [
+          "history/11.jpg",
+          "history/12.jpg",
+          "history/19.jpg"
+        ]
+      }
+    ]
+  },
+  "history": [
+    {
+      "title": "2008 賽事實戰",
+      "desc": "繞圈賽實戰經驗。182cc 車輛挑戰 182cc 與 212cc 兩個級距，皆取得第二名；以原廠 125cc 為基礎、排氣量不變進行性能改裝，取得第一名。",
+      "images": [
+        "history/03.jpg",
+        "history/04.jpg"
+      ]
+    },
+    {
+      "title": "Dyno 測試",
+      "desc": "透過馬力機進行性能測試，觀察引擎輸出與修改前後的差異。",
+      "images": [
+        "history/08.jpg",
+        "history/10.jpg"
+      ]
+    },
+    {
+      "title": "汽缸頭流量測試",
+      "desc": "使用流量測試設備分析進排氣流量，建立汽缸頭開發的數據依據。",
+      "images": [
+        "history/11.jpg",
+        "history/12.jpg",
+        "history/19.jpg"
+      ]
+    },
+    {
+      "title": "歷史開發車輛",
+      "desc": "從實車測試中累積引擎性能與零件開發經驗。",
+      "images": [
+        "history/15.jpg",
+        "history/05.jpg"
+      ]
+    },
+    {
+      "title": "早期店面",
+      "desc": "從第一線維修與改裝工作開始，逐步累積動力開發與實戰經驗。",
+      "images": [
+        "history/16.jpg",
+        "history/17.jpg"
+      ]
+    },
+    {
+      "title": "汽缸頭開發",
+      "desc": "針對進排氣效率與性能需求進行汽缸頭設計與優化。",
+      "images": [
+        "history/19.jpg",
+        "history/20.jpg"
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "year": "2005",
+      "title": "晉暐開發動力開始累積經驗",
+      "desc": "投入引擎改裝、性能提升、凸輪軸設計與汽缸頭開發。"
+    },
+    {
+      "year": "2008",
+      "title": "賽場實戰與實車驗證",
+      "desc": "透過繞圈賽與實車測試驗證性能開發成果。"
+    },
+    {
+      "year": "2026",
+      "title": "YAO TITAN",
+      "desc": "以 YAO TITAN 品牌延續性能提升、零件優化、耐用度提升與問題解決的工程思維。"
+    }
+  ],
+  "historyPage": {
+    "eyebrow": "OUR HISTORY",
+    "title": "真實開發歷程",
+    "images": [
+      "history/03.jpg",
+      "history/08.jpg",
+      "history/11.jpg",
+      "history/15.jpg",
+      "history/16.jpg",
+      "history/19.jpg"
+    ]
+  },
+  "about": {
+    "eyebrow": "ABOUT YAO TITAN",
+    "title": "曜鈦精密科技",
+    "p1": "YAO TITAN 專注於發動機性能優化、零件開發與測試驗證。",
+    "p2": "我們相信真正的性能，不只是數字變大，而是每一次改變都能找到原因、經過測試，並在實際使用中被驗證。",
+    "images": [
+      "history/16.jpg",
+      "history/15.jpg"
+    ]
+  },
+  "contact": {
+    "eyebrow": "TECHNICAL CONSULTING",
+    "title": "技術諮詢",
+    "lead": "如果你有性能、零件或測試上的問題，歡迎從問題開始。",
+    "body": "可針對凸輪軸開發、汽缸頭流量測試、發動機性能優化、零件耐用度提升與實車測試進行技術討論，依實際需求評估開發方向。"
+  },
+  "gallery": {
+    "eyebrow": "DEVELOPMENT CASES",
+    "title": "真實開發案例",
+    "ctaEyebrow": "START WITH THE PROBLEM",
+    "ctaTitle": "讓每一次優化都有依據"
+  }
+}
