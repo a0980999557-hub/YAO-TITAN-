@@ -76,7 +76,7 @@
     "lead": "",
     "items": [
       {
-        "title": "Dyno 測試",
+        "title": "Dyno 性能測試",
         "desc": "透過馬力機觀察輸出、扭力與性能變化。",
         "images": [
           "history/08.jpg",
@@ -84,7 +84,7 @@
         ]
       },
       {
-        "title": "性能測試",
+        "title": "凸輪量測與分析",
         "desc": "以實際測試結果比較修改前後的性能差異。",
         "images": [
           "history/09.jpg"
